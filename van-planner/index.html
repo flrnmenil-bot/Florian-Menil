@@ -652,6 +652,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
       <label class="field"><span>Hauteur du plancher au sol</span><input type="number" inputmode="decimal" data-v="ext.sill"></label>
       <label class="field"><span>Rayon des roues</span><input type="number" inputmode="decimal" data-v="ext.wheel"></label>
     </div>
+    <div class="menu"><label class="mitem"><div class="grow">Vitres sur les flancs de la caisse<small>Pour les versions vitrées. Les vitres des portières de cabine sont toujours là.</small></div><input type="checkbox" class="switch" id="optSideWin"></label></div>
     <div class="subh">Galerie de toit</div>
     <div class="menu"><label class="mitem"><div class="grow">Galerie de toit<small id="rackHint">Ajoute une galerie sur le pavillon, visible en 3D et sur les dessins</small></div><input type="checkbox" class="switch" id="optRack"></label></div>
     <div class="fgrid" id="rackFields">
@@ -1388,14 +1389,31 @@ function build3D() {
   pts.push([wsTopX, cabTop], [cowlX, cowlZ], [hoodX, hoodZ], [nose, noseZ]);
   const shape = new THREE.Shape(); shape.moveTo(...pts[0]); for (const p of pts.slice(1)) shape.lineTo(...p); shape.closePath();
   const wsx = z => cowlX + (wsTopX - cowlX) * (z - cowlZ) / (cabTop - cowlZ);
-  const beltZ = cowlZ + 50, winTop = cabTop - 70, win = [[wsx(beltZ) + 90, beltZ], [-170, beltZ], [-170, winTop], [wsx(winTop) + 90, winTop]];
-  const hole = new THREE.Path(); hole.moveTo(...win[0]); for (const p of win.slice(1)) hole.lineTo(...p); hole.closePath(); shape.holes.push(hole);
+  const beltZ = cowlZ - 20, winTop = cabTop - 55, wBack = -110;
+  const win = [[Math.max(wsx(beltZ) + 70, cowlX + 70), beltZ], [wBack, beltZ], [wBack, winTop], [wsx(winTop) + 70, winTop]];
+  const holes = [win];
+  // Vitres de caisse (option) : une par flanc, entre la cloison et les portes arrière
+  const sw = ex.sideWin ? [[220, beltZ + 40], [Math.min(v.L - 260, 220 + Math.max(500, (v.L - 480) * 0.55)), beltZ + 40], [Math.min(v.L - 260, 220 + Math.max(500, (v.L - 480) * 0.55)), roofTop - 140], [220, roofTop - 140]] : null;
+  if (sw && sw[1][0] - sw[0][0] > 200 && sw[2][1] - sw[0][1] > 150) holes.push(sw);
+  for (const h of holes) { const path = new THREE.Path(); path.moveTo(...h[0]); for (const q of h.slice(1)) path.lineTo(...q); path.closePath(); shape.holes.push(path); }
   const side = (zPos, m) => {
     const geo = new THREE.ExtrudeGeometry(shape, { depth: 18, bevelEnabled: false });
     const mesh = new THREE.Mesh(geo, m); mesh.position.set(-cx, 0, zPos); mesh.castShadow = !m.transparent; mesh.receiveShadow = true; group.add(mesh); return mesh;
   };
-  const winShape = new THREE.Shape(); winShape.moveTo(...win[0]); for (const p of win.slice(1)) winShape.lineTo(...p); winShape.closePath();
-  const winGlass = zPos => { const m = new THREE.Mesh(new THREE.ShapeGeometry(winShape), glass(.35)); m.position.set(-cx, 0, zPos); group.add(m); };
+  const loop = (pts2, zPos, color) => { const geo = new THREE.BufferGeometry().setFromPoints([...pts2, pts2[0]].map(([x, z]) => new THREE.Vector3(x - cx, z, zPos))); group.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color }))); };
+  const winGlass = zPos => {
+    for (const h of holes) {
+      const sh = new THREE.Shape(); sh.moveTo(...h[0]); for (const q of h.slice(1)) sh.lineTo(...q); sh.closePath();
+      const m = new THREE.Mesh(new THREE.ShapeGeometry(sh), glass(.45)); m.position.set(-cx, 0, zPos); group.add(m);
+    }
+  };
+  // Portières de cabine : joint de vitre, contour de porte et poignée, des deux côtés
+  const doorLine = [[cowlX + 40, zb + 40], [-45, zb + 40], [-45, cabTop - 25], [wsx(cabTop - 25) + 35, cabTop - 25], [cowlX + 40, cowlZ - 10]];
+  for (const zPos of [-W / 2 - 20, W / 2 + 20]) {
+    for (const h of holes) loop(h, zPos, col('--trim3d'));
+    loop(doorLine, zPos, col('--trim3d'));
+  }
+  for (const [y0, y1] of [[-26, -18], [W + 18, W + 26]]) box(-260, y0, beltZ - 110, 130, y1 - y0, 32, trim, false);
   side(W / 2, body); winGlass(W / 2 + 9);
   const pSide = side(-W / 2 - 18, cut ? mat(col('--body3d'), { transparent: true, opacity: .12, depthWrite: false, side: THREE.DoubleSide }) : body);
   if (cut) edges(pSide, col('--muted'), .6, group, 20); else winGlass(-W / 2 - 9);
@@ -1793,6 +1811,7 @@ function renderVan() {
   $('#vanHint').textContent = `Espace utile ${f(v.L - 2 * v.lining)} × ${f(v.W - 2 * v.lining)} × ${f(v.H - v.floor - v.lining)} mm · ${f(v.W - 2 * v.arch.w)} mm entre les passages de roue`;
   for (const id of ['#projName', '#projName2']) if (document.activeElement !== $(id)) $(id).value = state.name || '';
   $('#optPartition').checked = !!v.cab.partition;
+  $('#optSideWin').checked = !!(v.ext && v.ext.sideWin);
 }
 
 /* ---------- Interactions sur les dessins ---------- */
@@ -2026,6 +2045,7 @@ function init() {
   });
   $('#scrim').addEventListener('click', () => closeSheets());
   $('#gridSeg').addEventListener('click', e => { const b = e.target.closest('[data-grid]'); if (!b) return; prefs.grid = +b.dataset.grid; savePrefs(); $$('#gridSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+  $('#optSideWin').addEventListener('change', e => { const on = e.target.checked; commit(() => { V().ext.sideWin = on; resetViews(); }); });
   $('#optRack').addEventListener('change', e => { const on = e.target.checked; commit(() => { const v = V(); if (on) v.rack = v.rack ? { ...v.rack, on: true } : defaultRack(v); else if (v.rack) v.rack.on = false; resetViews(); }); toast(on ? 'Galerie de toit ajoutée' : 'Galerie de toit retirée'); });
   $('#optPartition').addEventListener('change', e => { const on = e.target.checked; commit(() => { V().cab.partition = on; resetViews(); }); toast(on ? 'Cloison remise en place' : 'Cloison retirée : la cabine fait partie de l’espace'); });
   $('#optMagnet').addEventListener('change', e => { prefs.magnet = e.target.checked; savePrefs(); });
