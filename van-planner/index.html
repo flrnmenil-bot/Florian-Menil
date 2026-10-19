@@ -1,0 +1,1044 @@
+<title>Atelier Van</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout : établi technique — bibliothèque | planche à dessin (plan + élévation + coupe) | inspecteur. Cotes en encre bleue, modules en tons contreplaqué. */
+:root {
+  --paper: #E8ECEB;
+  --panel: #F7F9F8;
+  --panel-2: #EEF2F1;
+  --ink: #18211F;
+  --muted: #5B6966;
+  --line: #C6CFCD;
+  --grid-minor: #DCE3E1;
+  --grid-major: #C3CDCA;
+  --accent: #2245B5;
+  --accent-soft: #DCE3F7;
+  --danger: #B8322A;
+  --danger-soft: #F6DEDB;
+  --ok: #2C7A4C;
+  --ok-soft: #DCEFE3;
+  --hatch: #9AA7A4;
+  --c-sleep: #C9D6EE;
+  --c-kitchen: #E6CEA2;
+  --c-storage: #D8C2A0;
+  --c-water: #BCDDE1;
+  --c-energy: #E9D68A;
+  --c-seat: #D7C9E4;
+  --c-wash: #C7E2CF;
+  --c-other: #D3D8D7;
+  --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111715; --panel: #18201E; --panel-2: #1E2725; --ink: #E1E8E5; --muted: #93A29E; --line: #2D3936;
+    --grid-minor: #1C2523; --grid-major: #283431; --accent: #86A2FF; --accent-soft: #23305A;
+    --danger: #F07A6F; --danger-soft: #3D2120; --ok: #6CC795; --ok-soft: #1B3326; --hatch: #4C5A57;
+    --c-sleep: #2E3B55; --c-kitchen: #4A3B22; --c-storage: #463826; --c-water: #21434A; --c-energy: #4A4220;
+    --c-seat: #3B3150; --c-wash: #23402E; --c-other: #333B3A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111715; --panel: #18201E; --panel-2: #1E2725; --ink: #E1E8E5; --muted: #93A29E; --line: #2D3936;
+  --grid-minor: #1C2523; --grid-major: #283431; --accent: #86A2FF; --accent-soft: #23305A;
+  --danger: #F07A6F; --danger-soft: #3D2120; --ok: #6CC795; --ok-soft: #1B3326; --hatch: #4C5A57;
+  --c-sleep: #2E3B55; --c-kitchen: #4A3B22; --c-storage: #463826; --c-water: #21434A; --c-energy: #4A4220;
+  --c-seat: #3B3150; --c-wash: #23402E; --c-other: #333B3A;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.45; }
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+.num, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+  padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.brand { display: flex; align-items: baseline; gap: 10px; }
+.brand h1 { font-size: 24px; font-weight: 700; letter-spacing: .01em; }
+.brand span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.project { flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.project label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.project input { flex: 1; min-width: 0; border: 1px solid transparent; background: transparent; padding: 6px 8px; border-radius: 4px; font-weight: 600; }
+.project input:hover, .project input:focus { border-color: var(--line); background: var(--paper); }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.btn {
+  border: 1px solid var(--line); background: var(--panel); padding: 6px 11px; border-radius: 4px; cursor: pointer;
+  font-size: 13px; font-weight: 500; white-space: nowrap;
+}
+.btn:hover { border-color: var(--muted); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.btn.danger { color: var(--danger); }
+.btn.danger.armed { background: var(--danger); color: var(--panel); border-color: var(--danger); }
+.btn.sm { padding: 4px 8px; font-size: 12px; }
+
+.app {
+  display: grid; gap: 16px; align-items: start;
+  grid-template-columns: 250px minmax(0, 1fr) 280px;
+  grid-template-areas: "lib stage insp";
+  padding-block: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.lib { grid-area: lib; } .stage { grid-area: stage; min-width: 0; } .insp { grid-area: insp; }
+.lib, .insp { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; }
+@media (max-width: 1180px) {
+  .app { grid-template-columns: 250px minmax(0, 1fr); grid-template-areas: "lib stage" "lib insp"; }
+  .insp { position: static; max-height: none; }
+}
+@media (max-width: 760px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-areas: "stage" "insp" "lib"; }
+  .lib, .insp { position: static; max-height: none; }
+}
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+.panel > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.panel > header h2 { font-size: 16px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+.panel .body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.hint { color: var(--muted); font-size: 12px; margin: 0; }
+
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field > span { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.field input, .field select, .field textarea { width: 100%; border: 1px solid var(--line); background: var(--paper); border-radius: 4px; padding: 5px 7px; }
+.field input[type="number"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.unit { position: relative; }
+.unit input { padding-right: 34px; }
+.unit::after { content: attr(data-u); position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--muted); pointer-events: none; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.grid3 .unit::after { display: none; }
+.grid3 .unit input { padding-right: 6px; }
+.sub { font-family: var(--font-display); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 4px 0 -2px; }
+details.van-more summary { cursor: pointer; font-size: 12px; color: var(--accent); }
+details.van-more[open] summary { margin-bottom: 8px; }
+
+.libgroup { display: flex; flex-direction: column; gap: 4px; }
+.libitem {
+  display: grid; grid-template-columns: 12px 1fr; gap: 2px 8px; align-items: center; text-align: left;
+  border: 1px solid var(--line); background: var(--panel); border-radius: 4px; padding: 6px 8px; cursor: pointer;
+}
+.libitem:hover { border-color: var(--accent); background: var(--accent-soft); }
+.libitem i { width: 12px; height: 12px; border-radius: 2px; border: 1px solid var(--muted); grid-row: span 2; }
+.libitem b { font-weight: 500; font-size: 13px; }
+.libitem small { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stat span { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.stat b { font-family: var(--font-mono); font-weight: 500; font-size: 17px; font-variant-numeric: tabular-nums; }
+.stat small { font-size: 11px; color: var(--muted); }
+.bar { height: 5px; background: var(--panel-2); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.bar > div { height: 100%; background: var(--ok); }
+.bar.over > div { background: var(--danger); }
+.stat.bad { border-color: var(--danger); background: var(--danger-soft); cursor: pointer; }
+.stat.bad b { color: var(--danger); }
+.stat.good b { color: var(--ok); }
+
+.sheet { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.sheet + .sheet, .views + .sheet { margin-top: 12px; }
+.sheet > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.sheet > header h2 { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.sheet > header h2 em { font-style: normal; color: var(--muted); font-weight: 500; text-transform: none; letter-spacing: 0; font-family: var(--font-body); font-size: 12px; margin-left: 6px; }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 12px; }
+.tools label { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); }
+.tools select { border: 1px solid var(--line); background: var(--paper); border-radius: 4px; padding: 3px 5px; font-family: var(--font-mono); font-size: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { border: 0; border-right: 1px solid var(--line); background: var(--panel); padding: 3px 9px; cursor: pointer; font-family: var(--font-mono); }
+.seg button:last-child { border-right: 0; }
+.seg button:hover { background: var(--accent-soft); }
+
+svg.draw { display: block; width: 100%; background: var(--panel); touch-action: none; user-select: none; -webkit-user-select: none; }
+#plan { height: clamp(300px, 54vh, 640px); cursor: grab; }
+#plan.panning { cursor: grabbing; }
+.views { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+.views .sheet { margin-top: 0; }
+@media (max-width: 900px) { .views { grid-template-columns: minmax(0, 1fr); } }
+
+/* Dessin */
+.shell { fill: none; stroke: var(--ink); }
+.lining { fill: url(#hatch); stroke: none; }
+.innerline { fill: none; stroke: var(--muted); stroke-dasharray: 6 4; }
+.arch { fill: url(#hatch2); stroke: var(--ink); }
+.cab { fill: var(--panel-2); stroke: var(--muted); }
+.seat { fill: var(--paper); stroke: var(--muted); }
+.lbl { fill: var(--muted); font-family: var(--font-mono); letter-spacing: .06em; }
+.lbl.strong { fill: var(--ink); font-family: var(--font-display); font-weight: 600; letter-spacing: .08em; }
+.door { stroke: var(--accent); fill: none; stroke-dasharray: 8 5; }
+.doorgap { fill: var(--panel); stroke: none; }
+.mod rect.box { stroke: var(--ink); cursor: move; }
+.mod.raised rect.box { stroke-dasharray: 7 4; fill-opacity: .55; }
+.mod.sel rect.box { stroke: var(--accent); }
+.mod.bad rect.box { stroke: var(--danger); }
+.mod text { fill: var(--ink); pointer-events: none; font-family: var(--font-body); }
+.mod text.dim { font-family: var(--font-mono); fill: var(--muted); }
+.handle { fill: var(--accent); stroke: var(--panel); cursor: nwse-resize; }
+.handle.v { cursor: ns-resize; }
+.cote line { stroke: var(--accent); }
+.cote text { fill: var(--accent); font-family: var(--font-mono); paint-order: stroke; stroke: var(--panel); stroke-linejoin: round; }
+.cote.grey line { stroke: var(--muted); }
+.cote.grey text { fill: var(--muted); }
+.ghost { fill: var(--ink); fill-opacity: .06; stroke: var(--muted); stroke-dasharray: 3 3; }
+
+/* Inspecteur */
+.empty { color: var(--muted); font-size: 13px; padding: 4px 0; }
+.issues { display: flex; flex-direction: column; gap: 4px; }
+.issue { background: var(--danger-soft); color: var(--danger); border-radius: 4px; padding: 5px 8px; font-size: 12px; }
+.okline { background: var(--ok-soft); color: var(--ok); border-radius: 4px; padding: 5px 8px; font-size: 12px; }
+.clear { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; font-size: 12px; }
+.clear dt { color: var(--muted); }
+.clear dd { margin: 0; text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.btnrow { display: flex; flex-wrap: wrap; gap: 6px; }
+.kbd { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+/* Nomenclature */
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 6px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+td.num { text-align: right; }
+th.num { text-align: right; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--panel-2); }
+tbody tr.sel { background: var(--accent-soft); }
+tbody tr.bad td:first-child { color: var(--danger); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; border: 1px solid var(--muted); margin-right: 8px; vertical-align: -1px; }
+tfoot td { font-weight: 600; border-bottom: 0; }
+
+.modal { position: fixed; inset: 0; background: rgba(10, 14, 13, .45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+.modal .panel { width: min(640px, 100%); max-height: 90vh; display: flex; flex-direction: column; }
+.modal textarea { font-family: var(--font-mono); font-size: 12px; min-height: 260px; resize: vertical; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--panel); padding: 8px 14px; border-radius: 4px; font-size: 13px; z-index: 60; }
+.foot { padding-block: 4px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); color: var(--muted); font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="top">
+  <div class="brand"><h1>Atelier Van</h1><span>Plans d’aménagement au mm</span></div>
+  <div class="project"><label for="projName">Projet</label><input id="projName" type="text" autocomplete="off"></div>
+  <div class="actions">
+    <button class="btn" id="btnUndo" title="Annuler (Ctrl+Z)">Annuler</button>
+    <button class="btn" id="btnRedo" title="Rétablir (Ctrl+Y)">Rétablir</button>
+    <button class="btn" id="btnExport">Exporter / importer</button>
+    <button class="btn" id="btnSample">Charger l’exemple</button>
+    <button class="btn danger" id="btnNew">Nouveau plan</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="lib">
+    <section class="panel">
+      <header><h2>Véhicule</h2></header>
+      <div class="body">
+        <label class="field"><span>Modèle</span><select id="vanPreset"></select></label>
+        <p class="hint" id="vanHint"></p>
+        <details class="van-more" id="vanMore">
+          <summary>Cotes du véhicule (modifiables)</summary>
+          <div class="body" style="padding:0">
+            <div class="sub">Caisse nue (mm)</div>
+            <div class="grid3">
+              <label class="field"><span>Longueur</span><div class="unit" data-u="mm"><input id="v_L" type="number" step="1" data-v="L"></div></label>
+              <label class="field"><span>Largeur</span><div class="unit" data-u="mm"><input id="v_W" type="number" step="1" data-v="W"></div></label>
+              <label class="field"><span>Hauteur</span><div class="unit" data-u="mm"><input id="v_H" type="number" step="1" data-v="H"></div></label>
+            </div>
+            <div class="grid2">
+              <label class="field"><span>Isolation + habillage</span><div class="unit" data-u="mm"><input id="v_lining" type="number" step="1" data-v="lining"></div></label>
+              <label class="field"><span>Plancher</span><div class="unit" data-u="mm"><input id="v_floor" type="number" step="1" data-v="floor"></div></label>
+            </div>
+            <div class="sub">Passages de roue</div>
+            <div class="grid2">
+              <label class="field"><span>Début (depuis cloison)</span><div class="unit" data-u="mm"><input id="v_ax" type="number" step="1" data-v="arch.x"></div></label>
+              <label class="field"><span>Longueur</span><div class="unit" data-u="mm"><input id="v_alen" type="number" step="1" data-v="arch.len"></div></label>
+              <label class="field"><span>Saillie (depuis tôle)</span><div class="unit" data-u="mm"><input id="v_aw" type="number" step="1" data-v="arch.w"></div></label>
+              <label class="field"><span>Hauteur</span><div class="unit" data-u="mm"><input id="v_ah" type="number" step="1" data-v="arch.h"></div></label>
+            </div>
+            <div class="sub">Porte latérale, côté passager (mm)</div>
+            <div class="grid3">
+              <label class="field"><span>Début</span><div class="unit" data-u="mm"><input id="v_dx" type="number" step="1" data-v="door.x"></div></label>
+              <label class="field"><span>Largeur</span><div class="unit" data-u="mm"><input id="v_dlen" type="number" step="1" data-v="door.len"></div></label>
+              <label class="field"><span>Hauteur</span><div class="unit" data-u="mm"><input id="v_dh" type="number" step="1" data-v="door.h"></div></label>
+            </div>
+            <label class="field"><span>Charge utile</span><div class="unit" data-u="kg"><input id="v_payload" type="number" step="1" data-v="payload"></div></label>
+          </div>
+        </details>
+      </div>
+    </section>
+    <section class="panel">
+      <header><h2>Modules</h2></header>
+      <div class="body" id="library"></div>
+    </section>
+  </aside>
+
+  <main class="stage">
+    <div class="summary" id="summary"></div>
+
+    <section class="sheet">
+      <header>
+        <h2>Plan de dessus<em>vue d’en haut, avant à gauche</em></h2>
+        <div class="tools">
+          <label for="optGrid">Pas</label>
+          <select id="optGrid">
+            <option value="1">1 mm</option><option value="5">5 mm</option><option value="10" selected>10 mm</option><option value="50">50 mm</option><option value="100">100 mm</option>
+          </select>
+          <label><input type="checkbox" id="optMagnet" checked> Aimanter aux bords</label>
+          <label><input type="checkbox" id="optAllDims"> Cotes de tous les modules</label>
+          <div class="seg"><button id="zoomOut" aria-label="Dézoomer">−</button><button id="zoomFit">Ajuster</button><button id="zoomIn" aria-label="Zoomer">+</button></div>
+        </div>
+      </header>
+      <svg id="plan" class="draw" role="img" aria-label="Plan de dessus de l’aménagement"></svg>
+    </section>
+
+    <div class="views">
+      <section class="sheet">
+        <header><h2>Élévation<em>coupe longitudinale, vue côté passager</em></h2></header>
+        <svg id="elev" class="draw" role="img" aria-label="Élévation longitudinale"></svg>
+      </section>
+      <section class="sheet">
+        <header><h2>Coupe<em>vue depuis l’arrière</em></h2></header>
+        <svg id="sect" class="draw" role="img" aria-label="Coupe transversale"></svg>
+      </section>
+    </div>
+
+    <section class="sheet">
+      <header>
+        <h2>Nomenclature<em>cotes hors tout des modules</em></h2>
+        <button class="btn sm" id="btnCopyList">Copier la liste</button>
+      </header>
+      <div class="tablewrap"><table id="bom"></table></div>
+    </section>
+  </main>
+
+  <aside class="insp">
+    <section class="panel">
+      <header><h2>Module</h2><span class="kbd" id="inspId"></span></header>
+      <div class="body" id="inspEmpty">
+        <p class="empty">Sélectionnez un module sur un des dessins, ou ajoutez-en un depuis la bibliothèque.</p>
+        <p class="hint">Glisser pour déplacer, poignée bleue pour redimensionner. Molette pour zoomer, glisser le fond pour se déplacer.</p>
+      </div>
+      <div class="body" id="inspForm" hidden>
+        <label class="field"><span>Nom</span><input id="m_name" type="text" data-k="name" autocomplete="off"></label>
+        <label class="field"><span>Catégorie</span><select id="m_cat" data-k="cat"></select></label>
+        <div class="sub">Dimensions (mm)</div>
+        <div class="grid3">
+          <label class="field"><span>Longueur</span><div class="unit" data-u="mm"><input id="m_w" type="number" min="1" step="1" data-k="w"></div></label>
+          <label class="field"><span>Profondeur</span><div class="unit" data-u="mm"><input id="m_d" type="number" min="1" step="1" data-k="d"></div></label>
+          <label class="field"><span>Hauteur</span><div class="unit" data-u="mm"><input id="m_h" type="number" min="1" step="1" data-k="h"></div></label>
+        </div>
+        <div class="sub">Position (mm)</div>
+        <div class="grid3">
+          <label class="field" title="Distance depuis la cloison cabine (tôle)"><span>X cloison</span><div class="unit" data-u="mm"><input id="m_x" type="number" step="1" data-k="x"></div></label>
+          <label class="field" title="Distance depuis la paroi côté passager (tôle)"><span>Y passager</span><div class="unit" data-u="mm"><input id="m_y" type="number" step="1" data-k="y"></div></label>
+          <label class="field" title="Hauteur depuis le plancher fini"><span>Z plancher</span><div class="unit" data-u="mm"><input id="m_z" type="number" step="1" data-k="z"></div></label>
+        </div>
+        <label class="field"><span>Poids estimé</span><div class="unit" data-u="kg"><input id="m_kg" type="number" min="0" step="0.5" data-k="kg"></div></label>
+        <div class="sub">Plaquer contre</div>
+        <div class="btnrow">
+          <button class="btn sm" data-snap="front">Cloison</button>
+          <button class="btn sm" data-snap="rear">Portes AR</button>
+          <button class="btn sm" data-snap="pass">Paroi passager</button>
+          <button class="btn sm" data-snap="drv">Paroi conducteur</button>
+          <button class="btn sm" data-snap="floor">Sol</button>
+          <button class="btn sm" data-snap="ceil">Plafond</button>
+        </div>
+        <div class="sub">Dégagements</div>
+        <dl class="clear" id="clearList"></dl>
+        <div class="issues" id="issues"></div>
+        <div class="btnrow">
+          <button class="btn sm" id="btnRot">Pivoter 90° <span class="kbd">R</span></button>
+          <button class="btn sm" id="btnDup">Dupliquer <span class="kbd">D</span></button>
+          <button class="btn sm danger" id="btnDel">Supprimer <span class="kbd">Suppr</span></button>
+        </div>
+        <p class="hint">Flèches : déplacer d’un pas · Maj + flèches : ×10 · Page ↑/↓ : hauteur</p>
+      </div>
+    </section>
+    <section class="panel">
+      <header><h2>Repères</h2></header>
+      <div class="body">
+        <p class="hint">X se mesure depuis la tôle de la cloison cabine, Y depuis la tôle côté passager, Z depuis le plancher fini. Les cotes bleues sont prises au mur fini (après isolation), ou au module voisin le plus proche.</p>
+        <p class="hint">Trait plein : posé au sol. Pointillés : surélevé (lit, placards hauts). Rouge : conflit avec une paroi, un passage de roue ou un autre module.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+<p class="foot">Les cotes des modèles sont indicatives et varient selon l’année et la version : mesurez votre véhicule et corrigez-les dans « Cotes du véhicule ». Le plan est enregistré automatiquement dans ce navigateur.</p>
+
+<div class="modal" id="modal" hidden>
+  <section class="panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <header><h2 id="modalTitle">Exporter / importer</h2><button class="btn sm" id="modalClose">Fermer</button></header>
+    <div class="body">
+      <p class="hint">Copiez ce texte pour sauvegarder ou partager le plan. Pour en ouvrir un autre, collez son texte ici puis cliquez sur « Importer ».</p>
+      <label class="field"><span>Plan (JSON)</span><textarea id="jsonArea" spellcheck="false"></textarea></label>
+      <p class="hint" id="jsonMsg"></p>
+      <div class="btnrow"><button class="btn primary" id="jsonCopy">Copier</button><button class="btn" id="jsonImport">Importer</button></div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const uid = () => Math.random().toString(36).slice(2, 9);
+const nf = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
+const f = n => nf.format(Math.round(n));
+const f2 = n => new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const STORE = 'atelier-van-v1';
+
+const PRESETS = {
+  ducato_l2h2: { label: 'Fiat Ducato / Jumper / Boxer L2H2', L: 3120, W: 1870, H: 1932, lining: 40, floor: 25, arch: { x: 1520, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1075, h: 1755 }, payload: 1150 },
+  ducato_l3h2: { label: 'Fiat Ducato / Jumper / Boxer L3H2', L: 3705, W: 1870, H: 1932, lining: 40, floor: 25, arch: { x: 1900, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1250, h: 1755 }, payload: 1100 },
+  ducato_l4h3: { label: 'Fiat Ducato / Jumper / Boxer L4H3', L: 4070, W: 1870, H: 2172, lining: 40, floor: 25, arch: { x: 2050, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1250, h: 1955 }, payload: 1050 },
+  sprinter_l2h2: { label: 'Mercedes Sprinter L2H2', L: 3265, W: 1780, H: 1940, lining: 40, floor: 25, arch: { x: 1700, len: 1000, w: 215, h: 320 }, door: { x: 230, len: 1300, h: 1820 }, payload: 1200 },
+  crafter_l3h3: { label: 'Volkswagen Crafter / MAN TGE L3H3', L: 3450, W: 1832, H: 1961, lining: 40, floor: 25, arch: { x: 1800, len: 950, w: 226, h: 310 }, door: { x: 240, len: 1311, h: 1800 }, payload: 1150 },
+  trafic_l2h1: { label: 'Renault Trafic / Vivaro L2H1', L: 2937, W: 1662, H: 1387, lining: 30, floor: 20, arch: { x: 1650, len: 850, w: 197, h: 260 }, door: { x: 230, len: 1032, h: 1284 }, payload: 1050 },
+  custom_l2h1: { label: 'Ford Transit Custom L2H1', L: 2921, W: 1775, H: 1406, lining: 30, floor: 20, arch: { x: 1600, len: 850, w: 191, h: 260 }, door: { x: 230, len: 1030, h: 1323 }, payload: 1000 }
+};
+
+const CATS = {
+  sleep: { label: 'Couchage', c: '--c-sleep' },
+  kitchen: { label: 'Cuisine', c: '--c-kitchen' },
+  storage: { label: 'Rangement', c: '--c-storage' },
+  seat: { label: 'Salon', c: '--c-seat' },
+  wash: { label: 'Sanitaire', c: '--c-wash' },
+  water: { label: 'Eau', c: '--c-water' },
+  energy: { label: 'Énergie', c: '--c-energy' },
+  other: { label: 'Divers', c: '--c-other' }
+};
+
+const LIB = [
+  { cat: 'sleep', name: 'Lit transversal', w: 1400, d: 1790, h: 150, z: 900, kg: 38 },
+  { cat: 'sleep', name: 'Lit longitudinal', w: 1900, d: 1400, h: 150, z: 900, kg: 40 },
+  { cat: 'kitchen', name: 'Meuble cuisine', w: 1200, d: 550, h: 900, z: 0, kg: 45 },
+  { cat: 'kitchen', name: 'Réfrigérateur 12 V', w: 450, d: 550, h: 850, z: 0, kg: 22 },
+  { cat: 'seat', name: 'Banquette 2 places', w: 700, d: 500, h: 450, z: 0, kg: 25 },
+  { cat: 'seat', name: 'Table', w: 600, d: 400, h: 30, z: 700, kg: 7 },
+  { cat: 'storage', name: 'Placard haut', w: 1000, d: 300, h: 400, z: 1450, kg: 14 },
+  { cat: 'storage', name: 'Colonne / penderie', w: 500, d: 550, h: 1800, z: 0, kg: 28 },
+  { cat: 'storage', name: 'Coffre de rangement', w: 600, d: 400, h: 400, z: 0, kg: 10 },
+  { cat: 'wash', name: 'Cabine douche / WC', w: 800, d: 800, h: 1850, z: 0, kg: 40 },
+  { cat: 'wash', name: 'Toilettes sèches', w: 450, d: 500, h: 480, z: 0, kg: 8 },
+  { cat: 'water', name: 'Réservoir eau propre 100 L', w: 800, d: 350, h: 380, z: 0, kg: 108 },
+  { cat: 'water', name: 'Réservoir eaux grises 40 L', w: 600, d: 300, h: 250, z: 0, kg: 4 },
+  { cat: 'energy', name: 'Batterie lithium 200 Ah', w: 520, d: 240, h: 220, z: 0, kg: 22 },
+  { cat: 'energy', name: 'Chauffage diesel', w: 400, d: 160, h: 150, z: 0, kg: 5 },
+  { cat: 'energy', name: 'Convertisseur / chargeur', w: 400, d: 250, h: 120, z: 300, kg: 6 },
+  { cat: 'other', name: 'Bloc libre', w: 500, d: 500, h: 500, z: 0, kg: 10 }
+];
+
+function van(key) { return { preset: key, ...structuredClone(PRESETS[key]) }; }
+
+function sample() {
+  const m = (cat, name, x, y, w, d, h, z, kg) => ({ id: uid(), cat, name, x, y, w, d, h, z, kg });
+  return {
+    name: 'Exemple · Ducato L2H2 couchage arrière',
+    van: van('ducato_l2h2'),
+    modules: [
+      m('sleep', 'Lit transversal', 1680, 40, 1400, 1790, 150, 900, 38),
+      m('kitchen', 'Meuble cuisine', 300, 40, 1200, 550, 900, 0, 45),
+      m('storage', 'Placard haut', 300, 40, 1200, 300, 400, 1450, 14),
+      m('kitchen', 'Réfrigérateur 12 V', 1060, 1280, 450, 550, 850, 0, 22),
+      m('seat', 'Banquette 2 places', 300, 1330, 700, 500, 450, 0, 25),
+      m('seat', 'Table', 400, 900, 600, 400, 30, 700, 7),
+      m('water', 'Réservoir eau propre 100 L', 2500, 600, 550, 350, 380, 0, 75),
+      m('energy', 'Batterie lithium 200 Ah', 2500, 1100, 520, 240, 220, 0, 22),
+      m('energy', 'Chauffage diesel', 1750, 300, 400, 160, 150, 0, 5)
+    ]
+  };
+}
+
+function blank() { return { name: 'Mon aménagement', van: van('ducato_l2h2'), modules: [] }; }
+
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(STORE)); if (valid(s)) return s; } catch (e) {}
+  return null;
+}
+function valid(s) { return s && s.van && Array.isArray(s.modules) && isFinite(s.van.L) && isFinite(s.van.W); }
+let saveT = 0;
+function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }, 250); }
+
+let state = load() || sample();
+let sel = null;
+let undoStack = [], redoStack = [];
+const opts = { grid: 10, magnet: true, allDims: false };
+let planVB = null;
+
+function snapshot() { return JSON.stringify(state); }
+function pushUndo(snap) { undoStack.push(snap || snapshot()); if (undoStack.length > 200) undoStack.shift(); redoStack = []; updateUndoBtns(); }
+function commit(fn) { pushUndo(); fn(); afterChange(); }
+function afterChange() { save(); renderAll(); }
+function doUndo() { if (!undoStack.length) return; redoStack.push(snapshot()); state = JSON.parse(undoStack.pop()); fixSel(); planVB = null; renderAll(true); save(); }
+function doRedo() { if (!redoStack.length) return; undoStack.push(snapshot()); state = JSON.parse(redoStack.pop()); fixSel(); planVB = null; renderAll(true); save(); }
+function fixSel() { if (sel && !state.modules.find(m => m.id === sel)) sel = null; }
+function updateUndoBtns() { $('#btnUndo').disabled = !undoStack.length; $('#btnRedo').disabled = !redoStack.length; }
+
+const V = () => state.van;
+const getM = id => state.modules.find(m => m.id === id);
+function inner(v = V()) { return { x0: v.lining, x1: v.L - v.lining, y0: v.lining, y1: v.W - v.lining, z0: 0, z1: v.H - v.floor - v.lining }; }
+function arches(v = V()) {
+  const a = v.arch;
+  return [
+    { id: 'archP', name: 'passage de roue côté passager', x: a.x, y: 0, w: a.len, d: a.w, z: 0, h: a.h },
+    { id: 'archD', name: 'passage de roue côté conducteur', x: a.x, y: v.W - a.w, w: a.len, d: a.w, z: 0, h: a.h }
+  ];
+}
+function overlap3(a, b) {
+  const e = 0.5;
+  return a.x < b.x + b.w - e && b.x < a.x + a.w - e && a.y < b.y + b.d - e && b.y < a.y + a.d - e && a.z < b.z + b.h - e && b.z < a.z + a.h - e;
+}
+function issuesFor(m, I = inner(), A = arches()) {
+  const out = [];
+  if (m.x < I.x0 - 0.5) out.push(`Dépasse de ${f(I.x0 - m.x)} mm côté cloison`);
+  if (m.x + m.w > I.x1 + 0.5) out.push(`Dépasse de ${f(m.x + m.w - I.x1)} mm côté portes arrière`);
+  if (m.y < I.y0 - 0.5) out.push(`Dépasse de ${f(I.y0 - m.y)} mm côté passager`);
+  if (m.y + m.d > I.y1 + 0.5) out.push(`Dépasse de ${f(m.y + m.d - I.y1)} mm côté conducteur`);
+  if (m.z < -0.5) out.push(`Passe sous le plancher de ${f(-m.z)} mm`);
+  if (m.z + m.h > I.z1 + 0.5) out.push(`Dépasse le plafond fini de ${f(m.z + m.h - I.z1)} mm`);
+  for (const a of A) if (overlap3(m, a)) out.push(`Touche le ${a.name}`);
+  for (const o of state.modules) if (o.id !== m.id && overlap3(m, o)) out.push(`Chevauche « ${o.name} »`);
+  return out;
+}
+function allIssues() { const I = inner(), A = arches(), map = new Map(); for (const m of state.modules) { const l = issuesFor(m, I, A); if (l.length) map.set(m.id, l); } return map; }
+
+function clearances(m) {
+  const I = inner();
+  const obs = [...arches(), ...state.modules.filter(o => o.id !== m.id)];
+  const c = { L: I.x0, R: I.x1, T: I.y0, B: I.y1, D: 0, U: I.z1, nL: 'cloison', nR: 'portes arrière', nT: 'paroi passager', nB: 'paroi conducteur', nD: 'plancher', nU: 'plafond' };
+  const e = 0.5;
+  for (const o of obs) {
+    const yO = o.y < m.y + m.d - e && m.y < o.y + o.d - e;
+    const xO = o.x < m.x + m.w - e && m.x < o.x + o.w - e;
+    if (yO) {
+      if (o.x + o.w <= m.x + e && o.x + o.w > c.L) { c.L = o.x + o.w; c.nL = o.name; }
+      if (o.x >= m.x + m.w - e && o.x < c.R) { c.R = o.x; c.nR = o.name; }
+    }
+    if (xO) {
+      if (o.y + o.d <= m.y + e && o.y + o.d > c.T) { c.T = o.y + o.d; c.nT = o.name; }
+      if (o.y >= m.y + m.d - e && o.y < c.B) { c.B = o.y; c.nB = o.name; }
+    }
+    if (xO && yO) {
+      if (o.z + o.h <= m.z + e && o.z + o.h > c.D) { c.D = o.z + o.h; c.nD = o.name; }
+      if (o.z >= m.z + m.h - e && o.z < c.U) { c.U = o.z; c.nU = o.name; }
+    }
+  }
+  return c;
+}
+
+/* ---------- Dessin : utilitaires ---------- */
+function mkCote(px) {
+  const t = px(4.5);
+  const fs = px(11);
+  const sw = px(3.5);
+  const tick = (x, y) => `<line x1="${x - t}" y1="${y + t}" x2="${x + t}" y2="${y - t}" vector-effect="non-scaling-stroke" stroke-width="1.2"/>`;
+  return {
+    h(x1, x2, y, txt, cls = '') {
+      if (Math.abs(x2 - x1) < 0.5) return '';
+      const a = Math.min(x1, x2), b = Math.max(x1, x2);
+      const fits = (b - a) > px(String(txt).length * 7 + 8);
+      const tx = fits ? (a + b) / 2 : b + px(4);
+      const anchor = fits ? 'middle' : 'start';
+      return `<g class="cote ${cls}"><line x1="${a}" y1="${y}" x2="${b}" y2="${y}" vector-effect="non-scaling-stroke" stroke-width="1"/>${tick(a, y)}${tick(b, y)}<text x="${tx}" y="${y - px(4)}" font-size="${fs}" stroke-width="${sw}" text-anchor="${anchor}">${txt}</text></g>`;
+    },
+    v(y1, y2, x, txt, cls = '') {
+      if (Math.abs(y2 - y1) < 0.5) return '';
+      const a = Math.min(y1, y2), b = Math.max(y1, y2);
+      const fits = (b - a) > px(String(txt).length * 7 + 8);
+      const ty = fits ? (a + b) / 2 : a - px(4);
+      const anchor = fits ? 'middle' : 'start';
+      return `<g class="cote ${cls}"><line x1="${x}" y1="${a}" x2="${x}" y2="${b}" vector-effect="non-scaling-stroke" stroke-width="1"/>${tick(x, a)}${tick(x, b)}<text x="${x - px(4)}" y="${ty}" font-size="${fs}" stroke-width="${sw}" text-anchor="${anchor}" transform="rotate(-90 ${x - px(4)} ${ty})">${txt}</text></g>`;
+    }
+  };
+}
+function catColor(cat) { return `var(${(CATS[cat] || CATS.other).c})`; }
+function hatchDefs(px) {
+  const s = px(7);
+  return `<defs>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="${s}" height="${s}" patternTransform="rotate(45)"><rect width="${s}" height="${s}" fill="var(--panel-2)"/><line x1="0" y1="0" x2="0" y2="${s}" stroke="var(--hatch)" stroke-width="${px(1)}"/></pattern>
+    <pattern id="hatch2" patternUnits="userSpaceOnUse" width="${s * 0.7}" height="${s * 0.7}" patternTransform="rotate(-45)"><rect width="${s}" height="${s}" fill="var(--panel-2)"/><line x1="0" y1="0" x2="0" y2="${s}" stroke="var(--ink)" stroke-width="${px(1)}" stroke-opacity=".55"/></pattern>
+  </defs>`;
+}
+function fitVB(x, y, w, h, cw, ch) {
+  const a = cw / ch;
+  if (w / h > a) { const nh = w / a; return { x, y: y - (nh - h) / 2, w, h: nh }; }
+  const nw = h * a; return { x: x - (nw - w) / 2, y, w: nw, h };
+}
+function svgWidth(svg) { const r = svg.getBoundingClientRect(); return r.width || 800; }
+
+/* ---------- Plan ---------- */
+function planBox() { const v = V(); return [-1050, -300, v.L + 1050 + 440, v.W + 300 + 360]; }
+function renderPlan(issues) {
+  const svg = $('#plan'), v = V(), I = inner(v);
+  const r = svg.getBoundingClientRect(); const cw = r.width || 800, ch = r.height || 450;
+  if (!planVB) planVB = fitVB(...planBox(), cw, ch);
+  svg.setAttribute('viewBox', `${planVB.x} ${planVB.y} ${planVB.w} ${planVB.h}`);
+  const s = cw / planVB.w, px = n => n / s, C = mkCote(px), fs = px(11);
+  lastScale.plan = s;
+  const minor = s > 1.1 ? 10 : s > 0.3 ? 50 : 100;
+  let g = hatchDefs(px);
+  g += `<defs>
+    <pattern id="gmin" patternUnits="userSpaceOnUse" width="${minor}" height="${minor}"><path d="M ${minor} 0 L 0 0 0 ${minor}" fill="none" stroke="var(--grid-minor)" stroke-width="${px(1)}"/></pattern>
+    <pattern id="gmaj" patternUnits="userSpaceOnUse" width="500" height="500"><path d="M 500 0 L 0 0 0 500" fill="none" stroke="var(--grid-major)" stroke-width="${px(1)}"/></pattern>
+  </defs>`;
+  // Cabine
+  const W = v.W;
+  g += `<path class="cab" vector-effect="non-scaling-stroke" stroke-width="1" d="M0 ${W * 0.03} L-560 ${W * 0.05} Q-960 ${W * 0.1} -1000 ${W * 0.5} Q-960 ${W * 0.9} -560 ${W * 0.95} L0 ${W * 0.97} Z"/>`;
+  g += `<rect class="seat" vector-effect="non-scaling-stroke" stroke-width="1" x="-640" y="${W * 0.1}" width="520" height="${W * 0.36}" rx="60"/>`;
+  g += `<rect class="seat" vector-effect="non-scaling-stroke" stroke-width="1" x="-640" y="${W * 0.56}" width="520" height="${W * 0.32}" rx="60"/>`;
+  g += `<text class="lbl strong" x="-500" y="${W * 0.5 + fs * 0.35}" font-size="${fs}" text-anchor="middle">CABINE</text>`;
+  g += `<text class="lbl" x="-500" y="${W * 0.5 + fs * 1.7}" font-size="${px(10)}" text-anchor="middle">← AVANT</text>`;
+  // Habillage hachuré + grille
+  g += `<path class="lining" fill-rule="evenodd" d="M0 0 H${v.L} V${W} H0 Z M${I.x0} ${I.y0} V${I.y1} H${I.x1} V${I.y0} Z"/>`;
+  g += `<rect x="${I.x0}" y="${I.y0}" width="${I.x1 - I.x0}" height="${I.y1 - I.y0}" fill="url(#gmin)"/>`;
+  g += `<rect x="${I.x0}" y="${I.y0}" width="${I.x1 - I.x0}" height="${I.y1 - I.y0}" fill="url(#gmaj)"/>`;
+  g += `<rect class="innerline" vector-effect="non-scaling-stroke" stroke-width="1" x="${I.x0}" y="${I.y0}" width="${I.x1 - I.x0}" height="${I.y1 - I.y0}"/>`;
+  g += `<rect class="shell" vector-effect="non-scaling-stroke" stroke-width="2.2" x="0" y="0" width="${v.L}" height="${W}"/>`;
+  // Porte latérale
+  const d = v.door;
+  g += `<rect class="doorgap" x="${d.x}" y="${-px(3)}" width="${d.len}" height="${v.lining + px(3)}"/>`;
+  g += `<line class="door" vector-effect="non-scaling-stroke" stroke-width="1.4" x1="${d.x}" y1="-110" x2="${d.x + d.len}" y2="-110"/>`;
+  g += `<text class="lbl" x="${d.x + d.len / 2}" y="${-110 - px(6)}" font-size="${px(10)}" text-anchor="middle" style="fill:var(--accent)">PORTE LATÉRALE ${f(d.len)}</text>`;
+  // Portes arrière
+  g += `<line class="door" vector-effect="non-scaling-stroke" stroke-width="1.4" x1="${v.L + 55}" y1="0" x2="${v.L + 55}" y2="${W}"/>`;
+  // Passages de roue
+  for (const a of arches(v)) g += `<rect class="arch" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${a.x}" y="${a.y}" width="${a.w}" height="${a.d}"/>`;
+  g += `<text class="lbl" x="${v.arch.x + v.arch.len / 2}" y="${v.arch.w / 2 + fs * 0.35}" font-size="${px(9.5)}" text-anchor="middle">PASSAGE DE ROUE</text>`;
+  g += `<text class="lbl" x="${v.arch.x + v.arch.len / 2}" y="${W - v.arch.w / 2 + fs * 0.35}" font-size="${px(9.5)}" text-anchor="middle">PASSAGE DE ROUE</text>`;
+  // Libellés des côtés
+  g += `<text class="lbl strong" x="${v.L}" y="${-220}" font-size="${fs}" text-anchor="end">CÔTÉ PASSAGER</text>`;
+  g += `<text class="lbl strong" x="${v.L}" y="${W + 95}" font-size="${fs}" text-anchor="end">CÔTÉ CONDUCTEUR</text>`;
+  g += `<text class="lbl" x="${v.L + 55 + px(6)}" y="${W / 2}" font-size="${px(10)}" text-anchor="middle" transform="rotate(90 ${v.L + 55 + px(6)} ${W / 2})">PORTES ARRIÈRE</text>`;
+
+  // Modules : posés au sol d'abord, surélevés ensuite
+  const mods = [...state.modules].sort((a, b) => (a.z - b.z) || (b.w * b.d - a.w * a.d));
+  for (const m of mods) {
+    const isSel = m.id === sel, bad = issues.has(m.id), raised = m.z > 5;
+    g += `<g class="mod${raised ? ' raised' : ''}${isSel ? ' sel' : ''}${bad ? ' bad' : ''}" data-id="${m.id}">`;
+    g += `<rect class="box" x="${m.x}" y="${m.y}" width="${m.w}" height="${m.d}" fill="${catColor(m.cat)}" vector-effect="non-scaling-stroke" stroke-width="${isSel ? 2.2 : 1.2}"/>`;
+    const wpx = m.w * s, hpx = m.d * s;
+    if (wpx > 54 && hpx > 18) {
+      const showDim = (opts.allDims || isSel) && hpx > 34;
+      const cy = m.y + m.d / 2 + (showDim ? -px(3) : px(4));
+      const maxCh = Math.floor((wpx - 8) / 6.6);
+      const nm = m.name.length > maxCh ? m.name.slice(0, Math.max(3, maxCh - 1)) + '…' : m.name;
+      g += `<text x="${m.x + m.w / 2}" y="${cy}" font-size="${px(11.5)}" font-weight="500" text-anchor="middle">${esc(nm)}</text>`;
+      if (showDim) g += `<text class="dim" x="${m.x + m.w / 2}" y="${cy + px(14)}" font-size="${px(10.5)}" text-anchor="middle">${f(m.w)} × ${f(m.d)}${raised ? ` · z ${f(m.z)}` : ''}</text>`;
+    }
+    g += `</g>`;
+  }
+  // Cotes générales
+  g += C.h(I.x0, I.x1, W + 190, `utile ${f(I.x1 - I.x0)}`, 'grey');
+  g += C.h(0, v.L, W + 290, `caisse ${f(v.L)}`, 'grey');
+  g += C.v(I.y0, I.y1, v.L + 260, `utile ${f(I.y1 - I.y0)}`, 'grey');
+  g += C.v(0, W, v.L + 370, `caisse ${f(W)}`, 'grey');
+  g += C.v(v.arch.w, W - v.arch.w, v.arch.x - px(14), `entre roues ${f(W - 2 * v.arch.w)}`, 'grey');
+  // Cotes du module sélectionné
+  const m = getM(sel);
+  if (m) {
+    const c = clearances(m);
+    const midY = m.y + m.d / 2, midX = m.x + m.w / 2;
+    g += C.h(c.L, m.x, midY, f(m.x - c.L));
+    g += C.h(m.x + m.w, c.R, midY, f(c.R - m.x - m.w));
+    g += C.v(c.T, m.y, midX, f(m.y - c.T));
+    g += C.v(m.y + m.d, c.B, midX, f(c.B - m.y - m.d));
+    g += C.h(m.x, m.x + m.w, m.y - px(16), f(m.w));
+    g += C.v(m.y, m.y + m.d, m.x - px(16), f(m.d));
+    g += `<rect class="handle" data-handle="se" data-id="${m.id}" x="${m.x + m.w - px(6)}" y="${m.y + m.d - px(6)}" width="${px(12)}" height="${px(12)}" rx="${px(2)}" vector-effect="non-scaling-stroke" stroke-width="1.5"/>`;
+  }
+  svg.innerHTML = g;
+}
+
+/* ---------- Élévation ---------- */
+function elevBox() { const v = V(); return { x: -950, y: -(v.H - v.floor) - 170, w: v.L + 950 + 380, h: v.H + 170 + 260 }; }
+function renderElev(issues) {
+  const svg = $('#elev'), v = V(), I = inner(v), vb = elevBox();
+  svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const s = svgWidth(svg) / vb.w, px = n => n / s, C = mkCote(px), fs = px(11);
+  lastScale.elev = s;
+  const top = v.H - v.floor;
+  let g = hatchDefs(px);
+  // Cabine (profil)
+  g += `<path class="cab" vector-effect="non-scaling-stroke" stroke-width="1" d="M0 ${v.floor} L-880 ${v.floor} L-900 ${-top * 0.38} L-520 ${-top * 0.62} L-180 ${-top * 0.8} L0 ${-top * 0.84} Z"/>`;
+  g += `<text class="lbl" x="-450" y="${-top * 0.2}" font-size="${px(10)}" text-anchor="middle">CABINE</text>`;
+  // Parois, plancher, plafond
+  g += `<path class="lining" fill-rule="evenodd" d="M0 ${v.floor} H${v.L} V${-top} H0 Z M${I.x0} 0 V${-I.z1} H${I.x1} V0 Z"/>`;
+  g += `<rect class="innerline" vector-effect="non-scaling-stroke" stroke-width="1" x="${I.x0}" y="${-I.z1}" width="${I.x1 - I.x0}" height="${I.z1}"/>`;
+  g += `<rect class="shell" vector-effect="non-scaling-stroke" stroke-width="2.2" x="0" y="${-top}" width="${v.L}" height="${v.H}"/>`;
+  g += `<line class="shell" vector-effect="non-scaling-stroke" stroke-width="1.2" x1="0" y1="0" x2="${v.L}" y2="0"/>`;
+  // Roues
+  const rr = Math.min(v.arch.len * 0.37, 360), cx = v.arch.x + v.arch.len / 2;
+  g += `<circle cx="${cx}" cy="${v.floor + 120}" r="${rr}" fill="none" stroke="var(--muted)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" stroke-width="1"/>`;
+  g += `<rect class="arch" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${v.arch.x}" y="${-v.arch.h}" width="${v.arch.len}" height="${v.arch.h}"/>`;
+  // Porte latérale
+  g += `<rect class="door" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${v.door.x}" y="${-v.door.h}" width="${v.door.len}" height="${v.door.h}"/>`;
+  g += `<text class="lbl" x="${v.door.x + px(4)}" y="${-v.door.h + px(12)}" font-size="${px(9.5)}" style="fill:var(--accent)">PORTE ${f(v.door.h)}</text>`;
+  const mods = [...state.modules].sort((a, b) => (b.y + b.d) - (a.y + a.d));
+  for (const m of mods) {
+    const isSel = m.id === sel, bad = issues.has(m.id);
+    g += `<g class="mod${isSel ? ' sel' : ''}${bad ? ' bad' : ''}" data-id="${m.id}"><rect class="box" x="${m.x}" y="${-(m.z + m.h)}" width="${m.w}" height="${m.h}" fill="${catColor(m.cat)}" fill-opacity="${isSel ? 1 : 0.8}" vector-effect="non-scaling-stroke" stroke-width="${isSel ? 2.2 : 1.1}"/>`;
+    if (m.w * s > 50 && m.h * s > 14) g += `<text x="${m.x + m.w / 2}" y="${-(m.z + m.h / 2) + px(4)}" font-size="${px(10.5)}" text-anchor="middle">${esc(m.name.length > (m.w * s) / 6.4 ? m.name.slice(0, Math.max(3, Math.floor((m.w * s) / 6.4) - 1)) + '…' : m.name)}</text>`;
+    g += `</g>`;
+  }
+  g += C.v(0, -I.z1, v.L + 150, `utile ${f(I.z1)}`, 'grey');
+  g += C.v(v.floor, -top, v.L + 260, `caisse ${f(v.H)}`, 'grey');
+  const m = getM(sel);
+  if (m) {
+    const c = clearances(m);
+    const xr = m.x + m.w + px(14);
+    g += C.v(-c.D, -m.z, xr, f(m.z - c.D));
+    g += C.v(-m.z, -(m.z + m.h), xr, f(m.h));
+    g += C.v(-(m.z + m.h), -c.U, xr, f(c.U - m.z - m.h));
+    g += C.h(m.x, m.x + m.w, v.floor + 70, f(m.w));
+    g += C.h(I.x0, m.x, v.floor + 70, f(m.x - I.x0), 'grey');
+    g += `<rect class="handle v" data-handle="top" data-id="${m.id}" x="${m.x + m.w / 2 - px(6)}" y="${-(m.z + m.h) - px(6)}" width="${px(12)}" height="${px(12)}" rx="${px(2)}" vector-effect="non-scaling-stroke" stroke-width="1.5"/>`;
+  }
+  svg.innerHTML = g;
+}
+
+/* ---------- Coupe transversale (depuis l'arrière : passager à droite) ---------- */
+function sectBox() { const v = V(); return { x: -360, y: -(v.H - v.floor) - 170, w: v.W + 360 + 200, h: v.H + 170 + 200 }; }
+function renderSect(issues) {
+  const svg = $('#sect'), v = V(), I = inner(v), vb = sectBox();
+  svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const s = svgWidth(svg) / vb.w, px = n => n / s, C = mkCote(px);
+  const top = v.H - v.floor, W = v.W, X = y => W - y;
+  let g = hatchDefs(px);
+  g += `<path class="lining" fill-rule="evenodd" d="M0 ${v.floor} H${W} V${-top} H0 Z M${W - I.y1} 0 V${-I.z1} H${W - I.y0} V0 Z"/>`;
+  g += `<rect class="innerline" vector-effect="non-scaling-stroke" stroke-width="1" x="${W - I.y1}" y="${-I.z1}" width="${I.y1 - I.y0}" height="${I.z1}"/>`;
+  g += `<rect class="shell" vector-effect="non-scaling-stroke" stroke-width="2.2" x="0" y="${-top}" width="${W}" height="${v.H}"/>`;
+  for (const a of arches(v)) g += `<rect class="arch" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${X(a.y + a.d)}" y="${-a.h}" width="${a.d}" height="${a.h}"/>`;
+  const mods = [...state.modules].sort((a, b) => (b.x + b.w) - (a.x + a.w));
+  for (const m of mods) {
+    const isSel = m.id === sel, bad = issues.has(m.id);
+    g += `<g class="mod${isSel ? ' sel' : ''}${bad ? ' bad' : ''}" data-id="${m.id}"><rect class="box" x="${X(m.y + m.d)}" y="${-(m.z + m.h)}" width="${m.d}" height="${m.h}" fill="${catColor(m.cat)}" fill-opacity="${isSel ? 1 : 0.55}" vector-effect="non-scaling-stroke" stroke-width="${isSel ? 2.2 : 1}"/></g>`;
+  }
+  g += `<text class="lbl strong" x="0" y="${v.floor + px(18)}" font-size="${px(10.5)}">CONDUCTEUR</text>`;
+  g += `<text class="lbl strong" x="${W}" y="${v.floor + px(18)}" font-size="${px(10.5)}" text-anchor="end">PASSAGER</text>`;
+  g += C.h(W - I.y1, W - I.y0, -top - 70, `utile ${f(I.y1 - I.y0)}`, 'grey');
+  g += C.v(0, -I.z1, -150, `utile ${f(I.z1)}`, 'grey');
+  const m = getM(sel);
+  if (m) {
+    const c = clearances(m);
+    g += C.h(X(m.y + m.d), X(m.y), -(m.z + m.h) - px(14), f(m.d));
+    g += C.v(-c.D, -m.z, X(m.y + m.d) - px(14), f(m.z - c.D));
+    g += C.v(-m.z, -(m.z + m.h), X(m.y + m.d) - px(14), f(m.h));
+  }
+  svg.innerHTML = g;
+}
+
+/* ---------- Synthèse ---------- */
+function floorStats() {
+  const v = V(), I = inner(v), cell = 10;
+  const nx = Math.max(1, Math.round((I.x1 - I.x0) / cell)), ny = Math.max(1, Math.round((I.y1 - I.y0) / cell));
+  const grid = new Uint8Array(nx * ny);
+  const mark = (b, val) => {
+    const ix0 = clamp(Math.floor((b.x - I.x0) / cell), 0, nx), ix1 = clamp(Math.ceil((b.x + b.w - I.x0) / cell), 0, nx);
+    const iy0 = clamp(Math.floor((b.y - I.y0) / cell), 0, ny), iy1 = clamp(Math.ceil((b.y + b.d - I.y0) / cell), 0, ny);
+    for (let j = iy0; j < iy1; j++) for (let i = ix0; i < ix1; i++) if (grid[j * nx + i] !== 2) grid[j * nx + i] = val;
+  };
+  for (const a of arches(v)) mark(a, 2);
+  for (const m of state.modules) if (m.z <= 5) mark(m, 1);
+  let usable = 0, used = 0;
+  for (let k = 0; k < grid.length; k++) { if (grid[k] !== 2) usable++; if (grid[k] === 1) used++; }
+  const a = cell * cell / 1e6;
+  return { usable: usable * a, free: (usable - used) * a };
+}
+function renderSummary(issues) {
+  const v = V(), I = inner(v), fs = floorStats();
+  const kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0);
+  const pct = v.payload ? kg / v.payload : 0;
+  const n = issues.size;
+  $('#summary').innerHTML = `
+    <div class="stat"><span>Surface au sol utile</span><b>${f2(fs.usable)} m²</b><small>${f(I.x1 - I.x0)} × ${f(I.y1 - I.y0)} mm hors passages de roue</small></div>
+    <div class="stat"><span>Surface au sol libre</span><b>${f2(fs.free)} m²</b><small>${fs.usable ? Math.round(fs.free / fs.usable * 100) : 0} % du plancher dégagé</small></div>
+    <div class="stat"><span>Hauteur sous plafond</span><b>${f(I.z1)} mm</b><small>plancher fini → plafond fini</small></div>
+    <div class="stat"><span>Poids de l’aménagement</span><b>${f(kg)} kg</b><div class="bar${pct > 1 ? ' over' : ''}"><div style="width:${clamp(pct * 100, 0, 100)}%"></div></div><small>${Math.round(pct * 100)} % de ${f(v.payload || 0)} kg de charge utile</small></div>
+    <div class="stat ${n ? 'bad' : 'good'}" id="statIssues" ${n ? 'role="button" tabindex="0" title="Sélectionner le premier module en conflit"' : ''}><span>Contrôle</span><b>${n ? `${n} conflit${n > 1 ? 's' : ''}` : 'Aucun conflit'}</b><small>${n ? 'cliquer pour voir le module' : `${state.modules.length} module${state.modules.length > 1 ? 's' : ''} en place`}</small></div>`;
+}
+function renderTable(issues) {
+  const rows = [...state.modules].sort((a, b) => a.x - b.x || a.y - b.y);
+  const kg = rows.reduce((t, m) => t + (+m.kg || 0), 0);
+  $('#bom').innerHTML = `<thead><tr><th>Module</th><th>Catégorie</th><th class="num">L × P × H (mm)</th><th class="num">X / Y / Z (mm)</th><th class="num">Poids</th></tr></thead>
+  <tbody>${rows.map(m => `<tr data-id="${m.id}" class="${m.id === sel ? 'sel' : ''}${issues.has(m.id) ? ' bad' : ''}"><td><span class="sw" style="background:${catColor(m.cat)}"></span>${esc(m.name)}</td><td>${(CATS[m.cat] || CATS.other).label}</td><td class="num">${f(m.w)} × ${f(m.d)} × ${f(m.h)}</td><td class="num">${f(m.x)} / ${f(m.y)} / ${f(m.z)}</td><td class="num">${f(m.kg || 0)} kg</td></tr>`).join('') || `<tr><td colspan="5" style="color:var(--muted)">Aucun module. Ajoutez-en depuis la bibliothèque à gauche.</td></tr>`}</tbody>
+  <tfoot><tr><td colspan="4">${rows.length} module${rows.length > 1 ? 's' : ''}</td><td class="num">${f(kg)} kg</td></tr></tfoot>`;
+}
+
+/* ---------- Inspecteur ---------- */
+function renderInspector(force) {
+  const m = getM(sel);
+  $('#inspEmpty').hidden = !!m; $('#inspForm').hidden = !m;
+  $('#inspId').textContent = m ? (CATS[m.cat] || CATS.other).label : '';
+  if (!m) return;
+  for (const el of $$('#inspForm [data-k]')) {
+    if (!force && document.activeElement === el) continue;
+    const val = m[el.dataset.k];
+    el.value = typeof val === 'number' ? Math.round(val * 10) / 10 : (val ?? '');
+  }
+  const c = clearances(m);
+  const row = (k, a, b, n) => `<dt>${k}</dt><dd title="jusqu’à : ${esc(n)}">${f(b - a)} mm</dd>`;
+  $('#clearList').innerHTML = row('Vers la cloison', c.L, m.x, c.nL) + row('Vers l’arrière', m.x + m.w, c.R, c.nR) + row('Vers le passager', c.T, m.y, c.nT) + row('Vers le conducteur', m.y + m.d, c.B, c.nB) + row('Dessous', c.D, m.z, c.nD) + row('Au-dessus', m.z + m.h, c.U, c.nU);
+  const iss = issuesFor(m);
+  $('#issues').innerHTML = iss.length ? iss.map(t => `<div class="issue">${esc(t)}</div>`).join('') : `<div class="okline">Rentre sans conflit.</div>`;
+}
+function renderVanForm() {
+  const v = V();
+  $('#vanPreset').value = PRESETS[v.preset] ? v.preset : 'custom';
+  const get = p => p.split('.').reduce((o, k) => o[k], v);
+  for (const el of $$('[data-v]')) if (document.activeElement !== el) el.value = get(el.dataset.v);
+  $('#vanHint').textContent = `Utile ${f(v.L - 2 * v.lining)} × ${f(v.W - 2 * v.lining)} × ${f(v.H - v.floor - v.lining)} mm · entre roues ${f(v.W - 2 * v.arch.w)} mm`;
+  if (document.activeElement !== $('#projName')) $('#projName').value = state.name || '';
+}
+
+function renderAll(force) {
+  const issues = allIssues();
+  renderPlan(issues); renderElev(issues); renderSect(issues);
+  renderSummary(issues); renderTable(issues); renderInspector(force); renderVanForm(); updateUndoBtns();
+}
+
+/* ---------- Bibliothèque ---------- */
+function renderLibrary() {
+  const groups = {};
+  LIB.forEach((it, i) => (groups[it.cat] = groups[it.cat] || []).push([it, i]));
+  $('#library').innerHTML = Object.entries(groups).map(([cat, items]) => `<div class="libgroup"><div class="sub">${CATS[cat].label}</div>${items.map(([it, i]) => `<button class="libitem" data-lib="${i}"><i style="background:${catColor(cat)}"></i><b>${esc(it.name)}</b><small>${f(it.w)} × ${f(it.d)} × ${f(it.h)}${it.z ? ` · z ${f(it.z)}` : ''}</small></button>`).join('')}</div>`).join('') + `<p class="hint">Les dimensions se règlent ensuite au millimètre dans l’inspecteur.</p>`;
+}
+function findSpot(m) {
+  const I = inner(), A = arches();
+  const free = t => { const c = { ...m, ...t }; return c.x >= I.x0 && c.x + c.w <= I.x1 && c.y >= I.y0 && c.y + c.d <= I.y1 && !A.some(a => overlap3(c, a)) && !state.modules.some(o => overlap3(c, o)); };
+  for (let x = I.x0; x + m.w <= I.x1; x += 50) for (let y = I.y0; y + m.d <= I.y1; y += 50) if (free({ x, y })) return { x, y };
+  return { x: Math.max(I.x0, (I.x0 + I.x1 - m.w) / 2), y: Math.max(I.y0, (I.y0 + I.y1 - m.d) / 2) };
+}
+function addFromLib(i) {
+  const it = LIB[i], I = inner();
+  const m = { id: uid(), cat: it.cat, name: it.name, w: it.w, d: it.d, h: it.h, z: it.z, kg: it.kg, x: 0, y: 0 };
+  if (it.cat === 'sleep' && it.d > I.y1 - I.y0) m.d = I.y1 - I.y0;
+  Object.assign(m, findSpot(m));
+  commit(() => { state.modules.push(m); sel = m.id; });
+  renderInspector(true);
+}
+
+/* ---------- Interactions sur les dessins ---------- */
+function toSvg(svg, e) { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()); }
+function snapAxis(pos, size, cands, tol) {
+  const g = opts.grid;
+  let best = Math.round(pos / g) * g;
+  if (!opts.magnet) return best;
+  let bd = tol;
+  for (const c of cands) {
+    if (Math.abs(pos - c) < bd) { bd = Math.abs(pos - c); best = c; }
+    if (Math.abs(pos + size - c) < bd) { bd = Math.abs(pos + size - c); best = c - size; }
+  }
+  return best;
+}
+function candidates(m, axis) {
+  const v = V(), I = inner(v), others = state.modules.filter(o => o.id !== m.id);
+  if (axis === 'x') return [I.x0, I.x1, v.arch.x, v.arch.x + v.arch.len, v.door.x, v.door.x + v.door.len, ...others.flatMap(o => [o.x, o.x + o.w])];
+  if (axis === 'y') return [I.y0, I.y1, v.arch.w, v.W - v.arch.w, ...others.flatMap(o => [o.y, o.y + o.d])];
+  return [0, I.z1, v.arch.h, ...others.flatMap(o => [o.z, o.z + o.h])];
+}
+function snapSize(start, end, axis, m) {
+  const g = opts.grid;
+  let e = start + Math.max(g, Math.round((end - start) / g) * g);
+  if (opts.magnet) { const t = 12 / pxPerMm(axis); let bd = t; for (const c of candidates(m, axis)) if (c > start && Math.abs(end - c) < bd) { bd = Math.abs(end - c); e = c; } }
+  return Math.max(1, e - start);
+}
+let lastScale = { plan: 0.2, elev: 0.2, sect: 0.2 };
+function pxPerMm(axis) { return axis === 'z' ? lastScale.elev : lastScale.plan; }
+
+let drag = null;
+function bindDrawing(svg, view) {
+  svg.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    const t = e.target.closest('[data-id]');
+    const p = toSvg(svg, e);
+    if (t) {
+      const m = getM(t.dataset.id); if (!m) return;
+      e.preventDefault();
+      sel = m.id;
+      drag = { view, id: m.id, p0: p, start: { ...m }, snap: snapshot(), moved: false, handle: t.dataset.handle || null };
+      svg.setPointerCapture(e.pointerId);
+      renderAll(true);
+    } else if (view === 'plan') {
+      drag = { view, pan: true, c0: { x: e.clientX, y: e.clientY }, vb0: { ...planVB }, moved: false };
+      svg.setPointerCapture(e.pointerId); svg.classList.add('panning');
+    } else { drag = { view, deselect: true }; }
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!drag || drag.view !== view) return;
+    if (drag.pan) {
+      const r = svg.getBoundingClientRect(), k = planVB.w / r.width;
+      planVB.x = drag.vb0.x - (e.clientX - drag.c0.x) * k; planVB.y = drag.vb0.y - (e.clientY - drag.c0.y) * k;
+      drag.moved = true; renderPlan(allIssues()); return;
+    }
+    if (!drag.id) return;
+    const m = getM(drag.id); if (!m) return;
+    const p = toSvg(svg, e), st = drag.start;
+    const dx = p.x - drag.p0.x, dy = p.y - drag.p0.y;
+    if (!drag.moved && Math.hypot(dx, dy) * (svgWidth(svg) / svg.viewBox.baseVal.width) < 3) return;
+    drag.moved = true;
+    const tol = 10 / (svgWidth(svg) / svg.viewBox.baseVal.width);
+    if (view === 'plan') {
+      if (drag.handle === 'se') { m.w = snapSize(st.x, st.x + st.w + dx, 'x', m); m.d = snapSize(st.y, st.y + st.d + dy, 'y', m); }
+      else { m.x = snapAxis(st.x + dx, m.w, candidates(m, 'x'), tol); m.y = snapAxis(st.y + dy, m.d, candidates(m, 'y'), tol); }
+    } else if (view === 'elev') {
+      if (drag.handle === 'top') { m.h = snapSize(st.z, st.z + st.h - dy, 'z', m); }
+      else { m.x = snapAxis(st.x + dx, m.w, candidates(m, 'x'), tol); m.z = Math.max(0, snapAxis(st.z - dy, m.h, candidates(m, 'z'), tol)); }
+    } else {
+      m.y = snapAxis(st.y - dx, m.d, candidates(m, 'y'), tol); m.z = Math.max(0, snapAxis(st.z - dy, m.h, candidates(m, 'z'), tol));
+    }
+    renderAll();
+  });
+  const end = e => {
+    if (!drag || drag.view !== view) return;
+    if (drag.pan) { svg.classList.remove('panning'); if (!drag.moved) { sel = null; renderAll(true); } }
+    else if (drag.deselect) { sel = null; renderAll(true); }
+    else if (drag.moved) { pushUndo(drag.snap); save(); renderAll(true); }
+    drag = null;
+  };
+  svg.addEventListener('pointerup', end);
+  svg.addEventListener('pointercancel', end);
+}
+function zoomPlan(fac, cx, cy) {
+  const svg = $('#plan');
+  if (!planVB) return;
+  const nw = clamp(planVB.w * fac, 150, 30000); fac = nw / planVB.w;
+  if (cx == null) { cx = planVB.x + planVB.w / 2; cy = planVB.y + planVB.h / 2; }
+  planVB = { x: cx - (cx - planVB.x) * fac, y: cy - (cy - planVB.y) * fac, w: planVB.w * fac, h: planVB.h * fac };
+  renderPlan(allIssues());
+}
+
+/* ---------- Événements ---------- */
+function setModuleField(k, raw) {
+  const m = getM(sel); if (!m) return;
+  if (k === 'name' || k === 'cat') m[k] = raw;
+  else { const n = parseFloat(String(raw).replace(',', '.')); if (!isFinite(n)) return; m[k] = (k === 'w' || k === 'd' || k === 'h') ? Math.max(1, n) : n; }
+  save(); renderAll();
+}
+let focusSnap = null;
+function bindFields(sel, setter) {
+  for (const el of $$(sel)) {
+    el.addEventListener('focus', () => { focusSnap = snapshot(); });
+    el.addEventListener('input', () => setter(el));
+    el.addEventListener('change', () => { if (focusSnap && focusSnap !== snapshot()) { pushUndo(focusSnap); focusSnap = snapshot(); } });
+  }
+}
+function setVanField(el) {
+  const n = parseFloat(el.value.replace(',', '.')); if (!isFinite(n) || n < 0) return;
+  const path = el.dataset.v.split('.'), v = V();
+  const o = path.length > 1 ? v[path[0]] : v; o[path[path.length - 1]] = n;
+  v.preset = 'custom'; planVB = null; save(); renderAll();
+}
+function snapTo(where) {
+  const m = getM(sel); if (!m) return;
+  const I = inner();
+  commit(() => {
+    if (where === 'front') m.x = I.x0; if (where === 'rear') m.x = I.x1 - m.w;
+    if (where === 'pass') m.y = I.y0; if (where === 'drv') m.y = I.y1 - m.d;
+    if (where === 'floor') m.z = 0; if (where === 'ceil') m.z = I.z1 - m.h;
+  });
+}
+function rotateSel() { const m = getM(sel); if (!m) return; commit(() => { const cx = m.x + m.w / 2, cy = m.y + m.d / 2; [m.w, m.d] = [m.d, m.w]; m.x = Math.round(cx - m.w / 2); m.y = Math.round(cy - m.d / 2); }); renderInspector(true); }
+function dupSel() { const m = getM(sel); if (!m) return; const c = { ...m, id: uid() }; Object.assign(c, findSpot(c)); commit(() => { state.modules.push(c); sel = c.id; }); renderInspector(true); }
+function delSel() { if (!getM(sel)) return; commit(() => { state.modules = state.modules.filter(m => m.id !== sel); sel = null; }); }
+function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2200); }
+
+function init() {
+  $('#vanPreset').innerHTML = Object.entries(PRESETS).map(([k, p]) => `<option value="${k}">${esc(p.label)}</option>`).join('') + `<option value="custom">Personnalisé</option>`;
+  $('#m_cat').innerHTML = Object.entries(CATS).map(([k, c]) => `<option value="${k}">${c.label}</option>`).join('');
+  renderLibrary();
+  $('#library').addEventListener('click', e => { const b = e.target.closest('[data-lib]'); if (b) addFromLib(+b.dataset.lib); });
+  $('#vanPreset').addEventListener('change', e => {
+    const k = e.target.value;
+    if (k === 'custom') { V().preset = 'custom'; $('#vanMore').open = true; save(); return; }
+    commit(() => { state.van = van(k); planVB = null; });
+  });
+  bindFields('[data-v]', setVanField);
+  bindFields('#inspForm [data-k]', el => setModuleField(el.dataset.k, el.value));
+  $('#projName').addEventListener('input', e => { state.name = e.target.value; save(); });
+  $$('[data-snap]').forEach(b => b.addEventListener('click', () => snapTo(b.dataset.snap)));
+  $('#btnRot').addEventListener('click', rotateSel);
+  $('#btnDup').addEventListener('click', dupSel);
+  $('#btnDel').addEventListener('click', delSel);
+  $('#btnUndo').addEventListener('click', doUndo);
+  $('#btnRedo').addEventListener('click', doRedo);
+  $('#optGrid').addEventListener('change', e => opts.grid = +e.target.value);
+  $('#optMagnet').addEventListener('change', e => opts.magnet = e.target.checked);
+  $('#optAllDims').addEventListener('change', e => { opts.allDims = e.target.checked; renderAll(); });
+  $('#zoomIn').addEventListener('click', () => zoomPlan(1 / 1.3));
+  $('#zoomOut').addEventListener('click', () => zoomPlan(1.3));
+  $('#zoomFit').addEventListener('click', () => { planVB = null; renderPlan(allIssues()); });
+  $('#plan').addEventListener('wheel', e => { e.preventDefault(); const p = toSvg($('#plan'), e); zoomPlan(e.deltaY > 0 ? 1.15 : 1 / 1.15, p.x, p.y); }, { passive: false });
+  bindDrawing($('#plan'), 'plan'); bindDrawing($('#elev'), 'elev'); bindDrawing($('#sect'), 'sect');
+  $('#bom').addEventListener('click', e => { const r = e.target.closest('tr[data-id]'); if (r) { sel = r.dataset.id; renderAll(true); } });
+  $('#summary').addEventListener('click', e => { if (e.target.closest('#statIssues.bad')) { const id = allIssues().keys().next().value; if (id) { sel = id; renderAll(true); } } });
+  $('#summary').addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.id === 'statIssues') { e.preventDefault(); e.target.click(); } });
+  $('#btnSample').addEventListener('click', () => { commit(() => { state = sample(); sel = null; planVB = null; }); toast('Exemple chargé · Annuler pour revenir'); });
+  const nb = $('#btnNew');
+  nb.addEventListener('click', () => {
+    if (!nb.classList.contains('armed')) { nb.classList.add('armed'); nb.textContent = 'Confirmer l’effacement'; clearTimeout(nb.t); nb.t = setTimeout(() => { nb.classList.remove('armed'); nb.textContent = 'Nouveau plan'; }, 3500); return; }
+    nb.classList.remove('armed'); nb.textContent = 'Nouveau plan';
+    const keep = state.van;
+    commit(() => { state = blank(); state.van = keep; sel = null; planVB = null; });
+    toast('Plan vidé · Annuler pour revenir');
+  });
+  $('#btnCopyList').addEventListener('click', () => {
+    const rows = [...state.modules].sort((a, b) => a.x - b.x);
+    const txt = ['Module\tCatégorie\tLongueur (mm)\tProfondeur (mm)\tHauteur (mm)\tX (mm)\tY (mm)\tZ (mm)\tPoids (kg)', ...rows.map(m => [m.name, (CATS[m.cat] || CATS.other).label, m.w, m.d, m.h, m.x, m.y, m.z, m.kg || 0].join('\t'))].join('\n');
+    copy(txt, 'Liste copiée, prête à coller dans un tableur');
+  });
+  // Export / import
+  const modal = $('#modal');
+  $('#btnExport').addEventListener('click', () => { $('#jsonArea').value = JSON.stringify(state, null, 2); $('#jsonMsg').textContent = ''; modal.hidden = false; $('#jsonArea').focus(); $('#jsonArea').select(); });
+  $('#modalClose').addEventListener('click', () => modal.hidden = true);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
+  $('#jsonCopy').addEventListener('click', () => copy($('#jsonArea').value, 'Plan copié dans le presse-papiers'));
+  $('#jsonImport').addEventListener('click', () => {
+    try {
+      const s = JSON.parse($('#jsonArea').value);
+      if (!valid(s)) throw new Error('format');
+      s.modules.forEach(m => { m.id = m.id || uid(); ['x', 'y', 'z', 'w', 'd', 'h', 'kg'].forEach(k => m[k] = +m[k] || 0); });
+      commit(() => { state = s; sel = null; planVB = null; });
+      modal.hidden = true; toast('Plan importé');
+    } catch (err) { $('#jsonMsg').textContent = 'Ce texte n’est pas un plan Atelier Van valide. Collez le texte complet obtenu avec « Exporter ».'; }
+  });
+  document.addEventListener('keydown', e => {
+    if (!modal.hidden && e.key === 'Escape') { modal.hidden = true; return; }
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    const mod = e.ctrlKey || e.metaKey;
+    if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? doRedo() : doUndo(); return; }
+    if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); doRedo(); return; }
+    if (mod) return;
+    const m = getM(sel); if (!m) return;
+    const step = opts.grid * (e.shiftKey ? 10 : 1);
+    const mv = { ArrowLeft: ['x', -step], ArrowRight: ['x', step], ArrowUp: ['y', -step], ArrowDown: ['y', step], PageUp: ['z', step], PageDown: ['z', -step] }[e.key];
+    if (mv) { e.preventDefault(); commit(() => { m[mv[0]] = Math.round(m[mv[0]] + mv[1]); if (mv[0] === 'z') m.z = Math.max(0, m.z); }); renderInspector(true); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); delSel(); }
+    else if (e.key === 'r' || e.key === 'R') rotateSel();
+    else if (e.key === 'd' || e.key === 'D') dupSel();
+    else if (e.key === 'Escape') { sel = null; renderAll(true); }
+  });
+  let rt = 0;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { planVB = null; renderAll(); }, 120); });
+  renderAll(true);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => renderAll());
+}
+function copy(txt, ok) {
+  try {
+    navigator.clipboard.writeText(txt).then(() => toast(ok), () => { $('#jsonArea').value = txt; toast('Copie refusée : sélectionnez le texte et copiez-le à la main'); });
+  } catch (e) { toast('Copie refusée : sélectionnez le texte et copiez-le à la main'); }
+}
+init();
+})();
+</script>
