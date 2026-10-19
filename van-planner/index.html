@@ -301,6 +301,24 @@ tr.grp td { background: var(--surface-2); font-weight: 600; cursor: pointer; }
 .cutsum { display: flex; flex-wrap: wrap; gap: 8px; }
 .cutsum span { background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 12.5px; }
 .cutsum b { font-family: var(--font-mono); font-weight: 500; }
+.lgroup { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.lgroup + .lgroup { margin-top: 10px; }
+.lhead { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; background: var(--surface-2); }
+.lhead b { flex: 1; font-weight: 600; }
+.lhead small { color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+.litem { display: flex; align-items: center; border-top: 1px solid var(--line); }
+.lname { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 7px 8px 7px 12px; text-align: left; }
+.lname:hover { background: var(--surface-2); }
+.lname > span:last-child { min-width: 0; display: flex; flex-direction: column; }
+.lname b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lname small { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.lpic { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; flex: none; color: var(--mod-stroke); }
+.lpic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.litem.off .lname { opacity: .45; }
+.eye { width: 40px; height: 40px; border: 0; background: transparent; border-radius: 10px; display: grid; place-items: center; color: var(--ink); flex: none; }
+.eye:hover { background: var(--line); }
+.eye.off { color: var(--muted); }
+.eye.part { color: var(--muted); }
 .sel-in { width: 100%; border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 10px; }
 
 /* ---------- Dock (téléphone) ---------- */
@@ -445,6 +463,9 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/></symbol>
   <symbol id="i-new" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3 3.8M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
 </svg>
 
@@ -456,6 +477,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
     <button class="vanchip" id="btnVan" title="Changer de véhicule"><svg class="i"><use href="#i-van"/></svg><span id="vanLabel"></span><svg class="i" style="width:16px;height:16px"><use href="#i-chev"/></svg></button>
     <button class="ibtn" id="btnUndo" title="Annuler (Ctrl+Z)" aria-label="Annuler"><svg class="i"><use href="#i-undo"/></svg></button>
     <button class="ibtn" id="btnRedo" title="Rétablir (Ctrl+Y)" aria-label="Rétablir"><svg class="i"><use href="#i-redo"/></svg></button>
+    <button class="btn sm desk" data-open="sheetLayers"><svg class="i" style="width:17px;height:17px"><use href="#i-layers"/></svg>Calques</button>
     <button class="btn sm desk" id="btnAnom"><svg class="i" style="width:17px;height:17px"><use href="#i-alert"/></svg>Anomalies<span class="badge" id="anomBadge" hidden></span></button>
     <button class="btn sm desk" id="btnList"><svg class="i" style="width:17px;height:17px"><use href="#i-list"/></svg>Liste</button>
     <button class="ibtn desk" id="btnMenu" title="Projet et réglages" aria-label="Projet et réglages"><svg class="i"><use href="#i-more"/></svg></button>
@@ -493,6 +515,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
         <button class="btn primary" data-open-lib><svg class="i" style="width:18px;height:18px"><use href="#i-plus"/></svg>Ajouter un meuble</button>
       </div>
       <div class="zoom">
+        <button data-open="sheetLayers" aria-label="Calques" title="Calques (afficher / masquer les meubles)"><svg class="i"><use href="#i-layers"/></svg></button>
         <button id="zoomIn" aria-label="Zoomer" title="Zoomer"><svg class="i"><use href="#i-plus"/></svg></button>
         <button id="zoomFit" aria-label="Recadrer" title="Recadrer"><svg class="i"><use href="#i-fit"/></svg></button>
         <button id="zoomOut" aria-label="Dézoomer" title="Dézoomer"><svg class="i"><use href="#i-minus"/></svg></button>
@@ -511,6 +534,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
           <li><kbd>D</kbd></li><li>Dupliquer</li>
           <li><kbd>←↑→↓</kbd></li><li>Déplacer d’un pas (Maj : ×10)</li>
           <li><kbd>Pg↑↓</kbd></li><li>Monter ou descendre</li>
+          <li><kbd>H</kbd></li><li>Masquer (Calques pour réafficher)</li>
           <li><kbd>Suppr</kbd></li><li>Supprimer</li>
         </ul>
       </div>
@@ -518,6 +542,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
         <div class="ptop">
           <span class="picto" id="p_picto"></span>
           <div class="ptitle"><input id="m_name" data-k="name" type="text" aria-label="Nom du meuble" autocomplete="off"><span id="p_cat"></span></div>
+          <button class="ibtn" id="propHide" aria-label="Masquer ce meuble" title="Masquer ce meuble (H)"><svg class="i"><use href="#i-eye-off"/></svg></button>
           <button class="ibtn mob" id="propClose" aria-label="Fermer"><svg class="i"><use href="#i-close"/></svg></button>
         </div>
         <div class="pstatus" id="p_status"></div>
@@ -604,6 +629,15 @@ tfoot td { font-weight: 600; border-bottom: 0; }
     <div class="menu"><label class="mitem"><div class="grow">Cloison en place<small>Désactivez si vous la démontez : le lit et les meubles peuvent alors passer dans la cabine</small></div><input type="checkbox" class="switch" id="optPartition"></label></div>
     <p class="hint">Les sièges sont des meubles comme les autres : touchez-les sur le plan pour les avancer, les redimensionner ou les supprimer. La bibliothèque (catégorie Cabine) permet de les remettre.</p>
     <p class="hint">Les cotes des modèles sont indicatives et varient selon l’année et la version. Mesurez votre véhicule et corrigez-les ici.</p>
+  </div>
+</section>
+
+<section class="msheet" id="sheetLayers" role="dialog" aria-modal="true" aria-labelledby="layTitle">
+  <div class="phead"><h2 id="layTitle">Calques</h2><button class="ibtn" data-close aria-label="Fermer"><svg class="i"><use href="#i-close"/></svg></button></div>
+  <div class="sbody">
+    <div class="row"><span class="hint" id="layerSum" style="flex:1"></span><button class="btn sm" id="layShowAll"><svg class="i" style="width:16px;height:16px"><use href="#i-eye"/></svg>Tout afficher</button><button class="btn sm" id="layHideAll"><svg class="i" style="width:16px;height:16px"><use href="#i-eye-off"/></svg>Tout masquer</button></div>
+    <div id="layerList"></div>
+    <p class="hint">L’œil affiche ou masque un meuble sur tous les dessins et en 3D. Celui de la catégorie agit sur tout le groupe. Un meuble masqué reste dans le plan : il compte toujours dans les anomalies, le poids et la liste des planches. Touchez un nom pour sélectionner le meuble.</p>
   </div>
 </section>
 
@@ -1029,7 +1063,7 @@ function renderPlan(issues) {
   g += `<text class="lbl strong" x="${v.L}" y="${W + 95}" font-size="${fs}" text-anchor="end">CÔTÉ CONDUCTEUR</text>`;
   g += `<text class="lbl" x="${v.L + 55 + px(6)}" y="${W / 2}" font-size="${px(10)}" text-anchor="middle" transform="rotate(90 ${v.L + 55 + px(6)} ${W / 2})">PORTES ARRIÈRE</text>`;
 
-  const mods = [...state.modules].sort((a, b) => (a.z - b.z) || (b.w * b.d - a.w * a.d));
+  const mods = state.modules.filter(m => !m.hidden).sort((a, b) => (a.z - b.z) || (b.w * b.d - a.w * a.d));
   for (const m of mods) {
     const isSel = m.id === sel, bad = issues.has(m.id), raised = m.z > 5;
     g += `<g class="mod${raised ? ' raised' : ''}${isSel ? ' sel' : ''}${bad ? ' bad' : ''}" data-id="${m.id}">`;
@@ -1095,7 +1129,7 @@ function renderElev(issues) {
     g += `<rect class="door" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${v.door.x}" y="${-v.door.h}" width="${v.door.len}" height="${v.door.h}"/>`;
     g += `<text class="lbl" x="${v.door.x + px(4)}" y="${-v.door.h + px(12)}" font-size="${px(9.5)}" style="fill:var(--accent)">PORTE ${f(v.door.h)}</text>`;
   }
-  for (const m of [...state.modules].sort((a, b) => (b.y + b.d) - (a.y + a.d))) {
+  for (const m of state.modules.filter(m => !m.hidden).sort((a, b) => (b.y + b.d) - (a.y + a.d))) {
     const isSel = m.id === sel, bad = issues.has(m.id);
     const sw = isSel ? 2.2 : 1.1, fo = isSel ? 1 : 0.85, rx = Math.min(px(3), 25);
     if (m.t && m.t.startsWith('seat')) {
@@ -1127,7 +1161,7 @@ function renderSect(issues) {
   g += `<rect class="innerline" vector-effect="non-scaling-stroke" stroke-width="1" x="${W - I.y1}" y="${-I.z1}" width="${I.y1 - I.y0}" height="${I.z1}"/>`;
   g += `<rect class="shell-l" vector-effect="non-scaling-stroke" stroke-width="2.4" x="0" y="${-top}" width="${W}" height="${v.H}"/>`;
   for (const a of arches(v)) g += `<rect class="arch" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${X(a.y + a.d)}" y="${-a.h}" width="${a.d}" height="${a.h}"/>`;
-  for (const m of [...state.modules].sort((a, b) => (b.x + b.w) - (a.x + a.w))) {
+  for (const m of state.modules.filter(m => !m.hidden).sort((a, b) => (b.x + b.w) - (a.x + a.w))) {
     const isSel = m.id === sel, bad = issues.has(m.id);
     g += `<g class="mod${isSel ? ' sel' : ''}${bad ? ' bad' : ''}" data-id="${m.id}"><rect class="box" x="${X(m.y + m.d)}" y="${-(m.z + m.h)}" width="${m.d}" height="${m.h}" rx="${Math.min(px(3), 25)}" fill="${catColor(m.cat)}" fill-opacity="${isSel ? 1 : 0.6}" vector-effect="non-scaling-stroke" stroke-width="${isSel ? 2.2 : 1}"/></g>`;
   }
@@ -1244,6 +1278,7 @@ function build3D() {
   for (const a of arches(v)) box(a.x, a.y, 0, a.w, a.d, a.h, archMat.clone());
   const ink = col('--mod-stroke'), acc = col('--accent'), bad = col('--danger'), wood = col('--wood');
   for (const m of state.modules) {
+    if (m.hidden) continue;
     const isSel = m.id === sel, c = col((CATS[m.cat] || CATS.other).c);
     const mm = () => mat(c, { roughness: .78, emissive: isSel ? acc : new THREE.Color(0), emissiveIntensity: isSel ? .22 : 0 });
     const parts = [];
@@ -1342,6 +1377,7 @@ function renderStats(issues) {
     `<span class="stat">Sol libre <b>${f2(fs.free)} m²</b></span>` +
     `<span class="stat">Poids <b>${f(kg)} kg</b><span class="meter${pct > 1 ? ' over' : ''}" title="${Math.round(pct * 100)} % de la charge utile"><i style="width:${clamp(pct * 100, 0, 100)}%"></i></span></span>` +
     `<span class="stat">Hauteur <b>${f(I.z1)} mm</b></span>` +
+    (state.modules.some(m => m.hidden) ? `<button class="stat" data-open-layers style="cursor:pointer"><svg class="i" style="width:14px;height:14px;align-self:center"><use href="#i-eye-off"/></svg><b>${state.modules.filter(m => m.hidden).length}</b> masqué${state.modules.filter(m => m.hidden).length > 1 ? 's' : ''}</button>` : '') +
     (an.ne ? `<button class="stat state bad" id="statIssues"><svg class="i"><use href="#i-alert"/></svg>${an.ne} à corriger</button>`
        : an.nw ? `<button class="stat state warn" id="statIssues"><svg class="i"><use href="#i-alert"/></svg>${an.nw} à vérifier</button>`
        : `<span class="stat state ok"><svg class="i"><use href="#i-check"/></svg>Tout rentre</span>`);
@@ -1429,7 +1465,7 @@ function renderActive(issues) {
 }
 function renderAll(force) {
   const issues = allIssues();
-  renderStats(issues); renderActive(issues); renderProps(force); renderBuild(force); renderList(issues); renderCut(); renderVan(); updateUndo();
+  renderStats(issues); renderActive(issues); renderProps(force); renderBuild(force); renderList(issues); renderCut(); renderLayers(); renderVan(); updateUndo();
 }
 function setView(v) {
   prefs.view = v; savePrefs();
@@ -1526,6 +1562,19 @@ function renderBuild(force) {
   const area = panels(m).reduce((t, p) => t + p.a * p.c / 1e6, 0);
   const slide = kind === 'drawer' ? ` Coulisses : 2 × ${f(Math.max(250, Math.floor((m.w - 30) / 50) * 50))} mm à sortie totale, charge ≥ 100 kg.` : '';
   $('#buildHint').textContent = on ? `${pcs.reduce((t, p) => t + p.qty, 0)} planches · ${f2(area)} m² · ≈ ${f(area * (+b.th || 15) * DENS)} kg de bois. Toutes les planches sont dans Liste → Planches.${slide}` : 'Meuble acheté tout fait : pas de planches à découper.';
+}
+function renderLayers() {
+  const groups = Object.entries(CATS).map(([k, c]) => [k, c, state.modules.filter(m => m.cat === k)]).filter(g => g[2].length);
+  const nh = state.modules.filter(m => m.hidden).length, eye = on => `<svg class="i"><use href="#i-${on ? 'eye' : 'eye-off'}"/></svg>`;
+  $('#layerSum').textContent = `${state.modules.length} meuble${state.modules.length > 1 ? 's' : ''}${nh ? ` · ${nh} masqué${nh > 1 ? 's' : ''}` : ''}`;
+  $('#layerList').innerHTML = groups.map(([k, c, ms]) => {
+    const vis = ms.filter(m => !m.hidden).length, st = vis === ms.length ? 'on' : vis ? 'part' : 'off';
+    return `<div class="lgroup"><div class="lhead"><span class="sw" style="background:${catColor(k)}"></span><b>${c.label}</b><small>${vis}/${ms.length}</small><button class="eye ${st}" data-layer-cat="${k}" aria-label="${st === 'off' ? 'Afficher' : 'Masquer'} la catégorie ${esc(c.label)}">${eye(st !== 'off')}</button></div>` +
+      ms.map(m => `<div class="litem${m.hidden ? ' off' : ''}"><button class="lname" data-layer-sel="${m.id}"><span class="lpic" style="background:${catColor(m.cat)}">${icon(m.t)}</span><span><b>${esc(m.name)}</b><small>${f(m.w)} × ${f(m.d)} × ${f(m.h)}${m.z > 5 ? ` · z ${f(m.z)}` : ''}</small></span></button><button class="eye ${m.hidden ? 'off' : 'on'}" data-layer="${m.id}" aria-label="${m.hidden ? 'Afficher' : 'Masquer'} ${esc(m.name)}">${eye(!m.hidden)}</button></div>`).join('') + `</div>`;
+  }).join('') || '<p class="hint">Aucun meuble pour l’instant.</p>';
+}
+function setHidden(ids, hide) {
+  commit(() => { for (const m of state.modules) if (ids.includes(m.id)) m.hidden = hide || undefined; if (hide && ids.includes(sel)) sel = null; });
 }
 function renderList(issues) {
   const rows = [...state.modules].sort((a, b) => a.x - b.x || a.y - b.y), kg = rows.reduce((t, m) => t + (+m.kg || 0), 0);
@@ -1744,6 +1793,15 @@ function init() {
   $('#btnVan').addEventListener('click', () => openSheet('sheetVan'));
   $('#btnList').addEventListener('click', () => openSheet('sheetList'));
   $('#btnAnom').addEventListener('click', () => openSheet('sheetAnom'));
+  $('#layerList').addEventListener('click', e => {
+    const one = e.target.closest('[data-layer]'), cat = e.target.closest('[data-layer-cat]'), pick = e.target.closest('[data-layer-sel]');
+    if (one) { const m = getM(one.dataset.layer); if (m) setHidden([m.id], !m.hidden); }
+    else if (cat) { const ms = state.modules.filter(m => m.cat === cat.dataset.layerCat); setHidden(ms.map(m => m.id), ms.some(m => !m.hidden)); }
+    else if (pick) { const m = getM(pick.dataset.layerSel); if (!m) return; if (m.hidden) setHidden([m.id], false); sel = m.id; closeSheets(); if (prefs.view === '3d') draw3D(); renderAll(true); }
+  });
+  $('#layShowAll').addEventListener('click', () => setHidden(state.modules.map(m => m.id), false));
+  $('#layHideAll').addEventListener('click', () => setHidden(state.modules.map(m => m.id), true));
+  $('#propHide').addEventListener('click', () => { const m = getM(sel); if (m) { setHidden([m.id], true); toast(`${m.name} masqué · Calques pour le réafficher`); } });
   $('#anomList').addEventListener('change', e => {
     const cb = e.target.closest('[data-ignore]'); if (!cb) return;
     const k = cb.dataset.ignore, on = cb.checked;
@@ -1756,6 +1814,7 @@ function init() {
     if (e.target.closest('[data-open-lib]')) { if (isMobile()) openSheet('lib'); else $('#libSearch').focus(); }
     if (e.target.closest('[data-close]')) closeSheets();
     if (e.target.closest('#statIssues')) openSheet('sheetAnom');
+    if (e.target.closest('[data-open-layers]')) openSheet('sheetLayers');
     const ar = e.target.closest('[data-anom]');
     if (ar) { sel = ar.dataset.anom; closeSheets(); if (prefs.view === '3d') setView('plan'); renderAll(true); }
     if (e.target.closest('[data-anom-weight]')) { closeSheets(); openSheet('sheetList'); }
@@ -1864,6 +1923,7 @@ function init() {
     if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); delSel(); }
     else if (e.key === 'r' || e.key === 'R') rotateSel();
     else if (e.key === 'd' || e.key === 'D') dupSel();
+    else if (e.key === 'h' || e.key === 'H') { setHidden([m.id], true); toast(`${m.name} masqué · Calques pour le réafficher`); }
   });
   let rt = 0;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { VB.plan = VB.elev = VB.sect = null; renderAll(); if (prefs.view === '3d') draw3D(); }, 120); });
