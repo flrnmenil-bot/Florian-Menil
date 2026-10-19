@@ -1,5 +1,20 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atelier Van</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Plans d’aménagement de van au millimètre.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Atelier Van">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F7F9F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18201E" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -53,6 +68,12 @@
 }
 
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; color-scheme: light; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+button, select, .libitem, .seg button { touch-action: manipulation; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); background: var(--panel); z-index: 40; }
 [hidden] { display: none !important; }
 body { background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.45; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -220,8 +241,39 @@ tfoot td { font-weight: 600; border-bottom: 0; }
 .modal textarea { font-family: var(--font-mono); font-size: 12px; min-height: 260px; resize: vertical; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--panel); padding: 8px 14px; border-radius: 4px; font-size: 13px; z-index: 60; }
 .foot { padding-block: 4px 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); color: var(--muted); font-size: 12px; }
+.tabbar { display: none; }
+@media (max-width: 760px) {
+  .field input, .field select, .field textarea, .project input, .tools select { font-size: 16px; }
+  .top { gap: 8px 12px; }
+  .brand span { display: none; }
+  .actions { flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; scrollbar-width: none; }
+  .actions .btn { padding: 5px 9px; font-size: 13px; }
+  .project label { display: none; }
+  .summary { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-left: -4px; padding: 0 4px 2px; scrollbar-width: none; }
+  .summary .stat { flex: 0 0 auto; min-width: 150px; max-width: 72vw; scroll-snap-align: start; }
+  .summary .stat small { display: none; }
+  .summary .stat .bar { display: block; }
+  #plan { height: clamp(260px, 82vw, 520px); }
+  #elev, #sect { touch-action: pan-y; }
+  body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  .tabbar {
+    display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+    background: var(--panel); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+  }
+  .tabbar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px 6px; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 500; }
+  .tabbar a b { font-family: var(--font-display); font-size: 17px; line-height: 1; color: var(--ink); }
+  .tabbar a.on, .tabbar a.on b { color: var(--accent); }
+  .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .modal { padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+}
+#sec-plan, #sec-insp, #sec-lib, #sec-van { scroll-margin-top: calc(12px + env(safe-area-inset-top, 0px)); }
+.filebtn { position: relative; overflow: hidden; }
+.filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
+</head>
+<body>
 
 <header class="top">
   <div class="brand"><h1>Atelier Van</h1><span>Plans d’aménagement au mm</span></div>
@@ -237,7 +289,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
 
 <div class="app">
   <aside class="lib">
-    <section class="panel">
+    <section class="panel" id="sec-van">
       <header><h2>Véhicule</h2></header>
       <div class="body">
         <label class="field"><span>Modèle</span><select id="vanPreset"></select></label>
@@ -273,7 +325,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
         </details>
       </div>
     </section>
-    <section class="panel">
+    <section class="panel" id="sec-lib">
       <header><h2>Modules</h2></header>
       <div class="body" id="library"></div>
     </section>
@@ -282,7 +334,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   <main class="stage">
     <div class="summary" id="summary"></div>
 
-    <section class="sheet">
+    <section class="sheet" id="sec-plan">
       <header>
         <h2>Plan de dessus<em>vue d’en haut, avant à gauche</em></h2>
         <div class="tools">
@@ -319,11 +371,11 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   </main>
 
   <aside class="insp">
-    <section class="panel">
+    <section class="panel" id="sec-insp">
       <header><h2>Module</h2><span class="kbd" id="inspId"></span></header>
       <div class="body" id="inspEmpty">
         <p class="empty">Sélectionnez un module sur un des dessins, ou ajoutez-en un depuis la bibliothèque.</p>
-        <p class="hint">Glisser pour déplacer, poignée bleue pour redimensionner. Molette pour zoomer, glisser le fond pour se déplacer.</p>
+        <p class="hint">Glisser pour déplacer, poignée bleue pour redimensionner. Molette ou deux doigts pour zoomer, glisser le fond pour se déplacer.</p>
       </div>
       <div class="body" id="inspForm" hidden>
         <label class="field"><span>Nom</span><input id="m_name" type="text" data-k="name" autocomplete="off"></label>
@@ -379,11 +431,17 @@ tfoot td { font-weight: 600; border-bottom: 0; }
       <p class="hint">Copiez ce texte pour sauvegarder ou partager le plan. Pour en ouvrir un autre, collez son texte ici puis cliquez sur « Importer ».</p>
       <label class="field"><span>Plan (JSON)</span><textarea id="jsonArea" spellcheck="false"></textarea></label>
       <p class="hint" id="jsonMsg"></p>
-      <div class="btnrow"><button class="btn primary" id="jsonCopy">Copier</button><button class="btn" id="jsonImport">Importer</button></div>
+      <div class="btnrow"><button class="btn primary" id="jsonCopy">Copier</button><button class="btn" id="jsonShare" hidden>Partager…</button><button class="btn" id="jsonImport">Importer le texte</button><label class="btn filebtn">Ouvrir un fichier…<input type="file" id="jsonFile" accept=".json,application/json,text/plain"></label></div>
     </div>
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
+<nav class="tabbar" aria-label="Navigation">
+  <a href="#sec-plan" class="on"><b>▭</b>Plan</a>
+  <a href="#sec-lib"><b>+</b>Ajouter</a>
+  <a href="#sec-insp"><b>⌖</b>Module</a>
+  <a href="#sec-van"><b>⚙</b>Véhicule</a>
+</nav>
 
 <script>
 (() => {
@@ -578,7 +636,11 @@ function fitVB(x, y, w, h, cw, ch) {
 function svgWidth(svg) { const r = svg.getBoundingClientRect(); return r.width || 800; }
 
 /* ---------- Plan ---------- */
-function planBox() { const v = V(); return [-1050, -300, v.L + 1050 + 440, v.W + 300 + 360]; }
+function planBox() {
+  const v = V();
+  if (matchMedia('(max-width: 760px)').matches) return [-260, -300, v.L + 260 + 440, v.W + 300 + 360];
+  return [-1050, -300, v.L + 1050 + 440, v.W + 300 + 360];
+}
 function renderPlan(issues) {
   const svg = $('#plan'), v = V(), I = inner(v);
   const r = svg.getBoundingClientRect(); const cw = r.width || 800, ch = r.height || 450;
@@ -826,6 +888,7 @@ function addFromLib(i) {
   Object.assign(m, findSpot(m));
   commit(() => { state.modules.push(m); sel = m.id; });
   renderInspector(true);
+  if (matchMedia('(max-width: 760px)').matches) { const a = document.querySelector('.tabbar a[href="#sec-plan"]'); if (a) a.click(); }
 }
 
 /* ---------- Interactions sur les dessins ---------- */
@@ -857,8 +920,30 @@ let lastScale = { plan: 0.2, elev: 0.2, sect: 0.2 };
 function pxPerMm(axis) { return axis === 'z' ? lastScale.elev : lastScale.plan; }
 
 let drag = null;
+const touches = new Map();
+function startPinch(svg) {
+  if (drag && drag.id) { const m = getM(drag.id); if (m && drag.moved) Object.assign(m, drag.start); }
+  const [a, b] = [...touches.values()], r = svg.getBoundingClientRect();
+  const mid = { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 };
+  drag = { view: 'plan', pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, vb0: { ...planVB }, p0: toSvg(svg, mid), r };
+  svg.classList.remove('panning');
+  renderAll();
+}
+function movePinch() {
+  const [a, b] = [...touches.values()], r = drag.r;
+  const fac = clamp(drag.d0 / (Math.hypot(a.x - b.x, a.y - b.y) || 1), 150 / drag.vb0.w, 30000 / drag.vb0.w);
+  const w = drag.vb0.w * fac, h = drag.vb0.h * fac;
+  const rx = ((a.x + b.x) / 2 - r.left) / r.width, ry = ((a.y + b.y) / 2 - r.top) / r.height;
+  planVB = { x: drag.p0.x - rx * w, y: drag.p0.y - ry * h, w, h };
+  renderPlan(allIssues());
+}
 function bindDrawing(svg, view) {
   svg.addEventListener('pointerdown', e => {
+    if (view === 'plan' && e.pointerType === 'touch') {
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (touches.size === 2) { svg.setPointerCapture(e.pointerId); startPinch(svg); return; }
+      if (touches.size > 2) return;
+    }
     if (e.button !== 0) return;
     const t = e.target.closest('[data-id]');
     const p = toSvg(svg, e);
@@ -875,7 +960,9 @@ function bindDrawing(svg, view) {
     } else { drag = { view, deselect: true }; }
   });
   svg.addEventListener('pointermove', e => {
+    if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (!drag || drag.view !== view) return;
+    if (drag.pinch) { if (touches.size >= 2) movePinch(); return; }
     if (drag.pan) {
       const r = svg.getBoundingClientRect(), k = planVB.w / r.width;
       planVB.x = drag.vb0.x - (e.clientX - drag.c0.x) * k; planVB.y = drag.vb0.y - (e.clientY - drag.c0.y) * k;
@@ -900,6 +987,8 @@ function bindDrawing(svg, view) {
     renderAll();
   });
   const end = e => {
+    touches.delete(e.pointerId);
+    if (drag && drag.pinch) { if (touches.size < 2) { drag = null; renderAll(true); } return; }
     if (!drag || drag.view !== view) return;
     if (drag.pan) { svg.classList.remove('panning'); if (!drag.moved) { sel = null; renderAll(true); } }
     else if (drag.deselect) { sel = null; renderAll(true); }
@@ -1003,6 +1092,30 @@ function init() {
   $('#modalClose').addEventListener('click', () => modal.hidden = true);
   modal.addEventListener('click', e => { if (e.target === modal) modal.hidden = true; });
   $('#jsonCopy').addEventListener('click', () => copy($('#jsonArea').value, 'Plan copié dans le presse-papiers'));
+  if (navigator.share) {
+    $('#jsonShare').hidden = false;
+    $('#jsonShare').addEventListener('click', async () => {
+      const txt = $('#jsonArea').value, name = (state.name || 'plan-van').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'plan-van';
+      try {
+        const file = new File([txt], name + '.json', { type: 'application/json' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: state.name });
+        else await navigator.share({ title: state.name, text: txt });
+      } catch (err) { if (err && err.name !== 'AbortError') toast('Partage impossible : utilisez « Copier »'); }
+    });
+  }
+  $('#jsonFile').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0]; if (!file) return;
+    const rd = new FileReader();
+    rd.onload = () => { $('#jsonArea').value = String(rd.result || ''); e.target.value = ''; $('#jsonImport').click(); };
+    rd.readAsText(file);
+  });
+  const tabs = $$('.tabbar a');
+  tabs.forEach(a => a.addEventListener('click', ev => {
+    ev.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    tabs.forEach(x => x.classList.toggle('on', x === a));
+  }));
   $('#jsonImport').addEventListener('click', () => {
     try {
       const s = JSON.parse($('#jsonArea').value);
@@ -1040,5 +1153,10 @@ function copy(txt, ok) {
   } catch (e) { toast('Copie refusée : sélectionnez le texte et copiez-le à la main'); }
 }
 init();
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
 })();
 </script>
+</body>
+</html>
