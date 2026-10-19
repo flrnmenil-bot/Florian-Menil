@@ -38,6 +38,8 @@
   --danger-soft: #FBE8E6;
   --ok: #23824F;
   --ok-soft: #E3F3EA;
+  --warn: #A86A12;
+  --warn-soft: #FBF0DC;
   --hatch: #AAB4B1;
   --mod-stroke: #34403D;
   --floor3d: #E3D2B4;
@@ -63,7 +65,7 @@
     --bg: #0E1312; --surface: #171D1C; --surface-2: #1D2524; --canvas: #121817; --ink: #E4EBE8; --muted: #95A4A0;
     --line: #263130; --line-strong: #35423F; --grid-minor: #172020; --grid-major: #212B29;
     --accent: #8099FF; --accent-ink: #0E1312; --accent-soft: #1F2A4D; --danger: #F07B70; --danger-soft: #3A1F1D;
-    --ok: #6BCB97; --ok-soft: #17301F; --hatch: #4F5D5A; --mod-stroke: #C9D3CF; --floor3d: #4A3F2E;
+    --ok: #6BCB97; --ok-soft: #17301F; --warn: #E3B25A; --warn-soft: #3A2E17; --hatch: #4F5D5A; --mod-stroke: #C9D3CF; --floor3d: #4A3F2E;
     --c-sleep: #2F3E5B; --c-kitchen: #4E3E24; --c-storage: #493A28; --c-seat: #3E3354; --c-wash: #234330;
     --c-water: #21464E; --c-energy: #4D4521; --c-other: #343C3B; --c-cab: #353C46;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .45); --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 2px 8px rgba(0, 0, 0, .3);
@@ -75,7 +77,7 @@
   --bg: #0E1312; --surface: #171D1C; --surface-2: #1D2524; --canvas: #121817; --ink: #E4EBE8; --muted: #95A4A0;
   --line: #263130; --line-strong: #35423F; --grid-minor: #172020; --grid-major: #212B29;
   --accent: #8099FF; --accent-ink: #0E1312; --accent-soft: #1F2A4D; --danger: #F07B70; --danger-soft: #3A1F1D;
-  --ok: #6BCB97; --ok-soft: #17301F; --hatch: #4F5D5A; --mod-stroke: #C9D3CF; --floor3d: #4A3F2E;
+  --ok: #6BCB97; --ok-soft: #17301F; --warn: #E3B25A; --warn-soft: #3A2E17; --hatch: #4F5D5A; --mod-stroke: #C9D3CF; --floor3d: #4A3F2E;
   --c-sleep: #2F3E5B; --c-kitchen: #4E3E24; --c-storage: #493A28; --c-seat: #3E3354; --c-wash: #234330;
   --c-water: #21464E; --c-energy: #4D4521; --c-other: #343C3B; --c-cab: #353C46;
   --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .45); --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 2px 8px rgba(0, 0, 0, .3);
@@ -172,6 +174,31 @@ svg.view.panning { cursor: grabbing; }
 .stat.state.ok { background: var(--ok-soft); color: var(--ok); }
 .stat.state.bad { background: var(--danger-soft); color: var(--danger); cursor: pointer; }
 .stat.state svg { width: 14px; height: 14px; }
+.stat.state.warn { background: var(--warn-soft); color: var(--warn); cursor: pointer; }
+.badge { min-width: 18px; height: 18px; border-radius: 9px; padding: 0 5px; font-size: 11px; font-weight: 600; line-height: 18px; text-align: center; background: var(--danger); color: var(--surface); font-family: var(--font-body); }
+.badge.warn { background: var(--warn); }
+.dock button { position: relative; }
+.dock .badge { position: absolute; top: 3px; left: calc(50% + 6px); }
+.anlist { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.anrow { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: start; padding: 11px 12px; border: 0; background: var(--surface); text-align: left; width: 100%; }
+.anrow + .anrow { border-top: 1px solid var(--line); }
+.anrow:hover { background: var(--surface-2); }
+.anrow .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; }
+.anrow .ic svg { width: 16px; height: 16px; }
+.anrow.err .ic { background: var(--danger-soft); color: var(--danger); }
+.anrow.warn .ic { background: var(--warn-soft); color: var(--warn); }
+.anrow b { font-weight: 600; display: block; }
+.anrow span.t { font-size: 13px; color: var(--muted); display: block; }
+.anrow .chev { color: var(--muted); transform: rotate(-90deg); align-self: center; }
+.ansum { display: flex; gap: 8px; flex-wrap: wrap; }
+.ansum span { border-radius: 999px; padding: 4px 11px; font-size: 12.5px; font-weight: 500; }
+.ansum .e { background: var(--danger-soft); color: var(--danger); }
+.ansum .w { background: var(--warn-soft); color: var(--warn); }
+.ansum .o { background: var(--ok-soft); color: var(--ok); }
+.anempty { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 28px 12px; color: var(--muted); }
+.anempty .ic { width: 56px; height: 56px; border-radius: 16px; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; }
+.anempty .ic svg { width: 28px; height: 28px; }
+.anempty h3 { color: var(--ink); font-size: 17px; }
 .zoom { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; z-index: 5; }
 .zoom button { width: 40px; height: 40px; border: 0; background: transparent; display: grid; place-items: center; color: var(--ink); }
 .zoom button + button { border-top: 1px solid var(--line); }
@@ -359,7 +386,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   .stats { align-self: stretch; }
   .legend { display: none; }
   .dock {
-    display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border-top: 1px solid var(--line); z-index: 50;
+    display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1px solid var(--line); z-index: 50;
     padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
   }
   .dock button { display: flex; flex-direction: column; align-items: center; gap: 3px; border: 0; background: transparent; padding: 8px 2px 7px; font-size: 11px; font-weight: 500; color: var(--muted); }
@@ -412,6 +439,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
     <button class="vanchip" id="btnVan" title="Changer de véhicule"><svg class="i"><use href="#i-van"/></svg><span id="vanLabel"></span><svg class="i" style="width:16px;height:16px"><use href="#i-chev"/></svg></button>
     <button class="ibtn" id="btnUndo" title="Annuler (Ctrl+Z)" aria-label="Annuler"><svg class="i"><use href="#i-undo"/></svg></button>
     <button class="ibtn" id="btnRedo" title="Rétablir (Ctrl+Y)" aria-label="Rétablir"><svg class="i"><use href="#i-redo"/></svg></button>
+    <button class="btn sm desk" id="btnAnom"><svg class="i" style="width:17px;height:17px"><use href="#i-alert"/></svg>Anomalies<span class="badge" id="anomBadge" hidden></span></button>
     <button class="btn sm desk" id="btnList"><svg class="i" style="width:17px;height:17px"><use href="#i-list"/></svg>Liste</button>
     <button class="ibtn desk" id="btnMenu" title="Projet et réglages" aria-label="Projet et réglages"><svg class="i"><use href="#i-more"/></svg></button>
   </header>
@@ -505,6 +533,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   <nav class="dock" aria-label="Actions">
     <button class="add" data-open-lib><span class="plus"><svg class="i"><use href="#i-plus"/></svg></span>Ajouter</button>
     <button data-open="sheetVan"><svg class="i"><use href="#i-van"/></svg>Véhicule</button>
+    <button data-open="sheetAnom"><svg class="i"><use href="#i-alert"/></svg>Anomalies<span class="badge" id="anomBadge2" hidden></span></button>
     <button data-open="sheetList"><svg class="i"><use href="#i-list"/></svg>Liste</button>
     <button data-open="sheetMenu"><svg class="i"><use href="#i-more"/></svg>Plus</button>
   </nav>
@@ -547,6 +576,15 @@ tfoot td { font-weight: 600; border-bottom: 0; }
     <div class="menu"><label class="mitem"><div class="grow">Cloison en place<small>Désactivez si vous la démontez : le lit et les meubles peuvent alors passer dans la cabine</small></div><input type="checkbox" class="switch" id="optPartition"></label></div>
     <p class="hint">Les sièges sont des meubles comme les autres : touchez-les sur le plan pour les avancer, les redimensionner ou les supprimer. La bibliothèque (catégorie Cabine) permet de les remettre.</p>
     <p class="hint">Les cotes des modèles sont indicatives et varient selon l’année et la version. Mesurez votre véhicule et corrigez-les ici.</p>
+  </div>
+</section>
+
+<section class="msheet" id="sheetAnom" role="dialog" aria-modal="true" aria-labelledby="anomTitle">
+  <div class="phead"><h2 id="anomTitle">Anomalies</h2><button class="ibtn" data-close aria-label="Fermer"><svg class="i"><use href="#i-close"/></svg></button></div>
+  <div class="sbody">
+    <div class="ansum" id="anomSum"></div>
+    <div id="anomList"></div>
+    <p class="hint">En rouge : ce qui ne rentre pas et doit être corrigé. En orange : ce qui rentre mais mérite d’être vérifié. Touchez une ligne pour sélectionner le meuble concerné.</p>
   </div>
 </section>
 
@@ -1188,13 +1226,48 @@ function floorStats() {
   for (let k = 0; k < grid.length; k++) { if (grid[k] !== 2) usable++; if (grid[k] === 1) used++; }
   const a = cell * cell / 1e6; return { usable: usable * a, free: (usable - used) * a };
 }
+function anomalies(issues = allIssues()) {
+  const v = V(), out = [];
+  for (const m of state.modules) for (const t of issues.get(m.id) || []) out.push({ id: m.id, name: m.name, level: 'err', text: t });
+  const kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0);
+  if (v.payload && kg > v.payload) out.push({ id: null, name: 'Poids total', level: 'err', text: `${f(kg)} kg d’aménagement pour ${f(v.payload)} kg de charge utile, sans compter passagers, eau et bagages` });
+  else if (v.payload && kg > v.payload * 0.6) out.push({ id: null, name: 'Poids total', level: 'warn', text: `${f(kg)} kg, soit ${Math.round(kg / v.payload * 100)} % de la charge utile. Gardez de la marge pour les passagers, l’eau et les bagages` });
+  for (const m of state.modules) {
+    if (issues.has(m.id)) continue;
+    if (m.cat === 'sleep') {
+      const len = Math.max(m.w, m.d), wid = Math.min(m.w, m.d), c = clearances(m), head = c.U - (m.z + m.h);
+      if (len < 1850) out.push({ id: m.id, name: m.name, level: 'warn', text: `Couchage de ${f(len)} mm : court pour un adulte (1 900 mm conseillés)` });
+      if (wid < 1200 && wid >= 700) out.push({ id: m.id, name: m.name, level: 'warn', text: `${f(wid)} mm de large : juste pour deux personnes (1 200 mm minimum, 1 400 mm confortables)` });
+      if (head < 650) out.push({ id: m.id, name: m.name, level: 'warn', text: `${f(head)} mm au-dessus du matelas : impossible de s’asseoir (650 mm minimum)` });
+    }
+    if (v.door.len > 0 && m.z < v.door.h && m.y < v.lining + 60 && m.x < v.door.x + v.door.len - 50 && m.x + m.w > v.door.x + 50 && m.cat !== 'cab') {
+      const cover = Math.min(m.x + m.w, v.door.x + v.door.len) - Math.max(m.x, v.door.x);
+      out.push({ id: m.id, name: m.name, level: 'warn', text: `Devant la porte latérale sur ${f(cover)} mm : vérifiez que l’accès reste possible` });
+    }
+    if (m.cat === 'cab' && m.t !== 'seat_b') {
+      const c = clearances(m), leg = m.x - c.L;
+      if (c.nL === 'tableau de bord' && leg < 250) out.push({ id: m.id, name: m.name, level: 'warn', text: `Seulement ${f(leg)} mm devant le siège jusqu’au tableau de bord : peu de place pour les jambes` });
+    }
+  }
+  return out;
+}
+function renderAnomalies(issues) {
+  const list = anomalies(issues), ne = list.filter(a => a.level === 'err').length, nw = list.length - ne;
+  for (const id of ['#anomBadge', '#anomBadge2']) { const b = $(id); b.hidden = !list.length; b.textContent = ne || nw; b.classList.toggle('warn', !ne); }
+  $('#anomSum').innerHTML = list.length ? `${ne ? `<span class="e">${ne} à corriger</span>` : ''}${nw ? `<span class="w">${nw} à vérifier</span>` : ''}` : '<span class="o">Aucune anomalie</span>';
+  $('#anomList').innerHTML = list.length
+    ? `<div class="anlist">${[...list].sort((a, b) => (a.level === 'err' ? 0 : 1) - (b.level === 'err' ? 0 : 1)).map(a => `<button class="anrow ${a.level}" ${a.id ? `data-anom="${a.id}"` : 'data-anom-weight'}><span class="ic"><svg class="i"><use href="#i-alert"/></svg></span><span><b>${esc(a.name)}</b><span class="t">${esc(a.text)}</span></span><svg class="i chev"><use href="#i-chev"/></svg></button>`).join('')}</div>`
+    : `<div class="anempty"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><h3>Tout est en ordre</h3><p class="hint">Aucun conflit ni point à vérifier dans ce plan.</p></div>`;
+  return { ne, nw };
+}
 function renderStats(issues) {
-  const v = V(), I = inner(v), fs = floorStats(), kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0), pct = v.payload ? kg / v.payload : 0, n = issues.size;
+  const v = V(), I = inner(v), fs = floorStats(), kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0), pct = v.payload ? kg / v.payload : 0, an = renderAnomalies(issues);
   $('#stats').innerHTML =
     `<span class="stat">Sol libre <b>${f2(fs.free)} m²</b></span>` +
     `<span class="stat">Poids <b>${f(kg)} kg</b><span class="meter${pct > 1 ? ' over' : ''}" title="${Math.round(pct * 100)} % de la charge utile"><i style="width:${clamp(pct * 100, 0, 100)}%"></i></span></span>` +
     `<span class="stat">Hauteur <b>${f(I.z1)} mm</b></span>` +
-    (n ? `<button class="stat state bad" id="statIssues"><svg class="i"><use href="#i-alert"/></svg>${n} conflit${n > 1 ? 's' : ''}</button>`
+    (an.ne ? `<button class="stat state bad" id="statIssues"><svg class="i"><use href="#i-alert"/></svg>${an.ne} à corriger</button>`
+       : an.nw ? `<button class="stat state warn" id="statIssues"><svg class="i"><use href="#i-alert"/></svg>${an.nw} à vérifier</button>`
        : `<span class="stat state ok"><svg class="i"><use href="#i-check"/></svg>Tout rentre</span>`);
   $('#emptyHint').hidden = state.modules.length > 0 || prefs.view === '3d';
 }
@@ -1483,12 +1556,16 @@ function init() {
   $('#btnRedo').addEventListener('click', doRedo);
   $('#btnVan').addEventListener('click', () => openSheet('sheetVan'));
   $('#btnList').addEventListener('click', () => openSheet('sheetList'));
+  $('#btnAnom').addEventListener('click', () => openSheet('sheetAnom'));
   $('#btnMenu').addEventListener('click', () => openSheet('sheetMenu'));
   $$('[data-open]').forEach(b => b.addEventListener('click', () => openSheet(b.dataset.open)));
   document.addEventListener('click', e => {
     if (e.target.closest('[data-open-lib]')) { if (isMobile()) openSheet('lib'); else $('#libSearch').focus(); }
     if (e.target.closest('[data-close]')) closeSheets();
-    if (e.target.closest('#statIssues')) { const id = allIssues().keys().next().value; if (id) { sel = id; renderAll(true); } }
+    if (e.target.closest('#statIssues')) openSheet('sheetAnom');
+    const ar = e.target.closest('[data-anom]');
+    if (ar) { sel = ar.dataset.anom; closeSheets(); if (prefs.view === '3d') setView('plan'); renderAll(true); }
+    if (e.target.closest('[data-anom-weight]')) { closeSheets(); openSheet('sheetList'); }
   });
   $('#scrim').addEventListener('click', () => closeSheets());
   $('#gridSeg').addEventListener('click', e => { const b = e.target.closest('[data-grid]'); if (!b) return; prefs.grid = +b.dataset.grid; savePrefs(); $$('#gridSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
