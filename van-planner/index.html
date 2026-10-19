@@ -180,16 +180,23 @@ svg.view.panning { cursor: grabbing; }
 .dock button { position: relative; }
 .dock .badge { position: absolute; top: 3px; left: calc(50% + 6px); }
 .anlist { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-.anrow { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: start; padding: 11px 12px; border: 0; background: var(--surface); text-align: left; width: 100%; }
+.anrow { display: grid; grid-template-columns: 1fr auto; align-items: center; background: var(--surface); }
+.anmain { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; padding: 11px 6px 11px 12px; border: 0; background: transparent; text-align: left; width: 100%; min-width: 0; }
+.ignore { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 12px; font-size: 11px; color: var(--muted); cursor: pointer; user-select: none; -webkit-user-select: none; }
+.ignore input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.anrow.off { background: var(--surface-2); }
+.anrow.off .ic { background: var(--surface); color: var(--muted); }
+.anrow.off b, .anrow.off .t { color: var(--muted); }
+.anrow.off b { text-decoration: line-through; }
+.ansum .h { background: var(--surface-2); color: var(--muted); }
 .anrow + .anrow { border-top: 1px solid var(--line); }
-.anrow:hover { background: var(--surface-2); }
+.anmain:hover { background: var(--surface-2); }
 .anrow .ic { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; }
 .anrow .ic svg { width: 16px; height: 16px; }
 .anrow.err .ic { background: var(--danger-soft); color: var(--danger); }
 .anrow.warn .ic { background: var(--warn-soft); color: var(--warn); }
 .anrow b { font-weight: 600; display: block; }
 .anrow span.t { font-size: 13px; color: var(--muted); display: block; }
-.anrow .chev { color: var(--muted); transform: rotate(-90deg); align-self: center; }
 .ansum { display: flex; gap: 8px; flex-wrap: wrap; }
 .ansum span { border-radius: 999px; padding: 4px 11px; font-size: 12.5px; font-weight: 500; }
 .ansum .e { background: var(--danger-soft); color: var(--danger); }
@@ -584,7 +591,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   <div class="sbody">
     <div class="ansum" id="anomSum"></div>
     <div id="anomList"></div>
-    <p class="hint">En rouge : ce qui ne rentre pas et doit être corrigé. En orange : ce qui rentre mais mérite d’être vérifié. Touchez une ligne pour sélectionner le meuble concerné.</p>
+    <p class="hint">En rouge : ce qui ne rentre pas et doit être corrigé. En orange : ce qui rentre mais mérite d’être vérifié. Touchez une ligne pour sélectionner le meuble concerné. Cochez « Ignorer » pour masquer une anomalie voulue : elle reste dans la liste des masquées et réapparaît si vous la décochez.</p>
   </div>
 </section>
 
@@ -754,6 +761,7 @@ function blank() { const v = van('ducato_l2h2'); return { name: 'Mon aménagemen
 function valid(s) { return s && s.van && Array.isArray(s.modules) && isFinite(s.van.L) && isFinite(s.van.W); }
 function migrate(s) {
   s.van.door = s.van.door || { x: 0, len: 0, h: 0 };
+  if (!Array.isArray(s.ignored)) s.ignored = [];
   const hadCab = !!s.van.cab;
   if (!hadCab) s.van.cab = structuredClone((PRESETS[s.van.preset] || PRESETS.ducato_l2h2).cab);
   for (const m of s.modules) {
@@ -809,19 +817,20 @@ function overlap3(a, b) {
 function issuesFor(m, I = inner(), A = arches()) {
   const out = [];
   const v = V();
-  if (m.x < I.cf - 0.5) out.push(`Entre de ${f(I.cf - m.x)} mm dans le tableau de bord`);
-  if (v.cab.partition && m.x < v.lining - 0.5 && m.x + m.w > 0.5) out.push('Traverse la cloison : décochez « Cloison en place » dans Véhicule si vous la démontez');
-  if (m.x < -0.5 && m.z + m.h > I.zc + 0.5) out.push(`Dépasse le plafond de la cabine de ${f(m.z + m.h - I.zc)} mm`);
-  if (m.x + m.w > I.x1 + 0.5) out.push(`Dépasse de ${f(m.x + m.w - I.x1)} mm côté portes arrière`);
-  if (m.y < I.y0 - 0.5) out.push(`Dépasse de ${f(I.y0 - m.y)} mm côté passager`);
-  if (m.y + m.d > I.y1 + 0.5) out.push(`Dépasse de ${f(m.y + m.d - I.y1)} mm côté conducteur`);
-  if (m.z < -0.5) out.push(`Passe sous le plancher de ${f(-m.z)} mm`);
-  if (m.z + m.h > I.z1 + 0.5) out.push(`Dépasse le plafond fini de ${f(m.z + m.h - I.z1)} mm`);
-  for (const a of A) if (overlap3(m, a)) out.push(`Touche le ${a.name}`);
-  for (const o of state.modules) if (o.id !== m.id && overlap3(m, o)) out.push(`Chevauche « ${o.name} »`);
+  if (m.x < I.cf - 0.5) out.push({ k: `${m.id}|dash`, t: `Entre de ${f(I.cf - m.x)} mm dans le tableau de bord` });
+  if (v.cab.partition && m.x < v.lining - 0.5 && m.x + m.w > 0.5) out.push({ k: `${m.id}|partition`, t: 'Traverse la cloison : décochez « Cloison en place » dans Véhicule si vous la démontez' });
+  if (m.x < -0.5 && m.z + m.h > I.zc + 0.5) out.push({ k: `${m.id}|cabceil`, t: `Dépasse le plafond de la cabine de ${f(m.z + m.h - I.zc)} mm` });
+  if (m.x + m.w > I.x1 + 0.5) out.push({ k: `${m.id}|rear`, t: `Dépasse de ${f(m.x + m.w - I.x1)} mm côté portes arrière` });
+  if (m.y < I.y0 - 0.5) out.push({ k: `${m.id}|pass`, t: `Dépasse de ${f(I.y0 - m.y)} mm côté passager` });
+  if (m.y + m.d > I.y1 + 0.5) out.push({ k: `${m.id}|drv`, t: `Dépasse de ${f(m.y + m.d - I.y1)} mm côté conducteur` });
+  if (m.z < -0.5) out.push({ k: `${m.id}|under`, t: `Passe sous le plancher de ${f(-m.z)} mm` });
+  if (m.z + m.h > I.z1 + 0.5) out.push({ k: `${m.id}|ceil`, t: `Dépasse le plafond fini de ${f(m.z + m.h - I.z1)} mm` });
+  for (const a of A) if (overlap3(m, a)) out.push({ k: `${m.id}|${a.id}`, t: `Touche le ${a.name}` });
+  for (const o of state.modules) if (o.id !== m.id && overlap3(m, o)) out.push({ k: `ov|${[m.id, o.id].sort().join('+')}`, t: `Chevauche « ${o.name} »` });
   return out;
 }
-function allIssues() { const I = inner(), A = arches(), map = new Map(); for (const m of state.modules) { const l = issuesFor(m, I, A); if (l.length) map.set(m.id, l); } return map; }
+const ignored = () => new Set(state.ignored || []);
+function allIssues() { const I = inner(), A = arches(), ign = ignored(), map = new Map(); for (const m of state.modules) { const l = issuesFor(m, I, A).filter(x => !ign.has(x.k)).map(x => x.t); if (l.length) map.set(m.id, l); } return map; }
 function clearances(m) {
   const I = inner(), obs = [...arches(), ...state.modules.filter(o => o.id !== m.id)], e = 0.5;
   const cabSide = inCabOnly(m), part = V().cab.partition;
@@ -1227,37 +1236,44 @@ function floorStats() {
   const a = cell * cell / 1e6; return { usable: usable * a, free: (usable - used) * a };
 }
 function anomalies(issues = allIssues()) {
-  const v = V(), out = [];
-  for (const m of state.modules) for (const t of issues.get(m.id) || []) out.push({ id: m.id, name: m.name, level: 'err', text: t });
+  const v = V(), out = [], I = inner(), A = arches();
+  for (const m of state.modules) for (const x of issuesFor(m, I, A)) out.push({ key: x.k, id: m.id, name: m.name, level: 'err', text: x.t });
   const kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0);
-  if (v.payload && kg > v.payload) out.push({ id: null, name: 'Poids total', level: 'err', text: `${f(kg)} kg d’aménagement pour ${f(v.payload)} kg de charge utile, sans compter passagers, eau et bagages` });
-  else if (v.payload && kg > v.payload * 0.6) out.push({ id: null, name: 'Poids total', level: 'warn', text: `${f(kg)} kg, soit ${Math.round(kg / v.payload * 100)} % de la charge utile. Gardez de la marge pour les passagers, l’eau et les bagages` });
+  if (v.payload && kg > v.payload) out.push({ key: 'all|weight', id: null, name: 'Poids total', level: 'err', text: `${f(kg)} kg d’aménagement pour ${f(v.payload)} kg de charge utile, sans compter passagers, eau et bagages` });
+  else if (v.payload && kg > v.payload * 0.6) out.push({ key: 'all|weight-warn', id: null, name: 'Poids total', level: 'warn', text: `${f(kg)} kg, soit ${Math.round(kg / v.payload * 100)} % de la charge utile. Gardez de la marge pour les passagers, l’eau et les bagages` });
   for (const m of state.modules) {
     if (issues.has(m.id)) continue;
     if (m.cat === 'sleep') {
       const len = Math.max(m.w, m.d), wid = Math.min(m.w, m.d), c = clearances(m), head = c.U - (m.z + m.h);
-      if (len < 1850) out.push({ id: m.id, name: m.name, level: 'warn', text: `Couchage de ${f(len)} mm : court pour un adulte (1 900 mm conseillés)` });
-      if (wid < 1200 && wid >= 700) out.push({ id: m.id, name: m.name, level: 'warn', text: `${f(wid)} mm de large : juste pour deux personnes (1 200 mm minimum, 1 400 mm confortables)` });
-      if (head < 650) out.push({ id: m.id, name: m.name, level: 'warn', text: `${f(head)} mm au-dessus du matelas : impossible de s’asseoir (650 mm minimum)` });
+      if (len < 1850) out.push({ key: `${m.id}|bed-len`, id: m.id, name: m.name, level: 'warn', text: `Couchage de ${f(len)} mm : court pour un adulte (1 900 mm conseillés)` });
+      if (wid < 1200 && wid >= 700) out.push({ key: `${m.id}|bed-wid`, id: m.id, name: m.name, level: 'warn', text: `${f(wid)} mm de large : juste pour deux personnes (1 200 mm minimum, 1 400 mm confortables)` });
+      if (head < 650) out.push({ key: `${m.id}|bed-head`, id: m.id, name: m.name, level: 'warn', text: `${f(head)} mm au-dessus du matelas : impossible de s’asseoir (650 mm minimum)` });
     }
     if (v.door.len > 0 && m.z < v.door.h && m.y < v.lining + 60 && m.x < v.door.x + v.door.len - 50 && m.x + m.w > v.door.x + 50 && m.cat !== 'cab') {
       const cover = Math.min(m.x + m.w, v.door.x + v.door.len) - Math.max(m.x, v.door.x);
-      out.push({ id: m.id, name: m.name, level: 'warn', text: `Devant la porte latérale sur ${f(cover)} mm : vérifiez que l’accès reste possible` });
+      out.push({ key: `${m.id}|door`, id: m.id, name: m.name, level: 'warn', text: `Devant la porte latérale sur ${f(cover)} mm : vérifiez que l’accès reste possible` });
     }
     if (m.cat === 'cab' && m.t !== 'seat_b') {
       const c = clearances(m), leg = m.x - c.L;
-      if (c.nL === 'tableau de bord' && leg < 250) out.push({ id: m.id, name: m.name, level: 'warn', text: `Seulement ${f(leg)} mm devant le siège jusqu’au tableau de bord : peu de place pour les jambes` });
+      if (c.nL === 'tableau de bord' && leg < 250) out.push({ key: `${m.id}|legroom`, id: m.id, name: m.name, level: 'warn', text: `Seulement ${f(leg)} mm devant le siège jusqu’au tableau de bord : peu de place pour les jambes` });
     }
   }
+  const ign = ignored();
+  for (const a of out) a.ignored = ign.has(a.key);
   return out;
 }
+function anomRow(a) {
+  return `<div class="anrow ${a.ignored ? 'off' : a.level}"><button class="anmain" ${a.id ? `data-anom="${a.id}"` : 'data-anom-weight'}><span class="ic"><svg class="i"><use href="#i-${a.ignored ? 'check' : 'alert'}"/></svg></span><span><b>${esc(a.name)}</b><span class="t">${esc(a.text)}</span></span></button><label class="ignore" title="${a.ignored ? 'Réafficher cette anomalie' : 'Masquer cette anomalie'}"><input type="checkbox" data-ignore="${esc(a.key)}" ${a.ignored ? 'checked' : ''}><span>${a.ignored ? 'Masquée' : 'Ignorer'}</span></label></div>`;
+}
 function renderAnomalies(issues) {
-  const list = anomalies(issues), ne = list.filter(a => a.level === 'err').length, nw = list.length - ne;
+  const all = anomalies(issues), list = all.filter(a => !a.ignored), hidden = all.filter(a => a.ignored);
+  const ne = list.filter(a => a.level === 'err').length, nw = list.length - ne;
   for (const id of ['#anomBadge', '#anomBadge2']) { const b = $(id); b.hidden = !list.length; b.textContent = ne || nw; b.classList.toggle('warn', !ne); }
-  $('#anomSum').innerHTML = list.length ? `${ne ? `<span class="e">${ne} à corriger</span>` : ''}${nw ? `<span class="w">${nw} à vérifier</span>` : ''}` : '<span class="o">Aucune anomalie</span>';
-  $('#anomList').innerHTML = list.length
-    ? `<div class="anlist">${[...list].sort((a, b) => (a.level === 'err' ? 0 : 1) - (b.level === 'err' ? 0 : 1)).map(a => `<button class="anrow ${a.level}" ${a.id ? `data-anom="${a.id}"` : 'data-anom-weight'}><span class="ic"><svg class="i"><use href="#i-alert"/></svg></span><span><b>${esc(a.name)}</b><span class="t">${esc(a.text)}</span></span><svg class="i chev"><use href="#i-chev"/></svg></button>`).join('')}</div>`
-    : `<div class="anempty"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><h3>Tout est en ordre</h3><p class="hint">Aucun conflit ni point à vérifier dans ce plan.</p></div>`;
+  $('#anomSum').innerHTML = (list.length ? `${ne ? `<span class="e">${ne} à corriger</span>` : ''}${nw ? `<span class="w">${nw} à vérifier</span>` : ''}` : '<span class="o">Aucune anomalie</span>') + (hidden.length ? `<span class="h">${hidden.length} masquée${hidden.length > 1 ? 's' : ''}</span>` : '');
+  $('#anomList').innerHTML = (list.length
+    ? `<div class="anlist">${[...list].sort((a, b) => (a.level === 'err' ? 0 : 1) - (b.level === 'err' ? 0 : 1)).map(anomRow).join('')}</div>`
+    : `<div class="anempty"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><h3>Tout est en ordre</h3><p class="hint">${hidden.length ? 'Il ne reste que des anomalies masquées.' : 'Aucun conflit ni point à vérifier dans ce plan.'}</p></div>`)
+    + (hidden.length ? `<div class="subh" style="margin:16px 0 8px">Masquées</div><div class="anlist">${hidden.map(anomRow).join('')}</div><button class="btn sm" id="unignoreAll" style="margin-top:10px">Tout réafficher</button>` : '');
   return { ne, nw };
 }
 function renderStats(issues) {
@@ -1289,9 +1305,10 @@ function renderProps(force) {
     if (!force && document.activeElement === el) continue;
     const val = m[el.dataset.k]; el.value = typeof val === 'number' ? Math.round(val * 10) / 10 : (val ?? '');
   }
-  const iss = issuesFor(m), st = $('#p_status');
+  const ign = ignored(), raw = issuesFor(m), iss = raw.filter(x => !ign.has(x.k)).map(x => x.t), nIgn = raw.length - iss.length, st = $('#p_status');
   st.className = 'pstatus ' + (iss.length ? 'bad' : 'ok');
-  st.innerHTML = iss.length ? iss.map(t => `<span>${esc(t)}</span>`).join('') : '<span>Rentre sans conflit.</span>';
+  st.innerHTML = (iss.length ? iss.map(t => `<span>${esc(t)}</span>`).join('') : '<span>Rentre sans conflit.</span>') + (nIgn ? `<span style="opacity:.75">${nIgn} anomalie${nIgn > 1 ? 's' : ''} masquée${nIgn > 1 ? 's' : ''}</span>` : '');
+  if (nIgn && !iss.length) st.style.display = 'flex'; else st.style.display = '';
   const c = clearances(m), row = (k, a, b, n) => `<dt>${k}</dt><dd title="jusqu’à : ${esc(n)}">${f(b - a)} mm</dd>`;
   $('#clearList').innerHTML = row('Vers la cloison', c.L, m.x, c.nL) + row('Vers l’arrière', m.x + m.w, c.R, c.nR) + row('Vers le passager', c.T, m.y, c.nT) + row('Vers le conducteur', m.y + m.d, c.B, c.nB) + row('Dessous', c.D, m.z, c.nD) + row('Au-dessus', m.z + m.h, c.U, c.nU);
 }
@@ -1557,6 +1574,12 @@ function init() {
   $('#btnVan').addEventListener('click', () => openSheet('sheetVan'));
   $('#btnList').addEventListener('click', () => openSheet('sheetList'));
   $('#btnAnom').addEventListener('click', () => openSheet('sheetAnom'));
+  $('#anomList').addEventListener('change', e => {
+    const cb = e.target.closest('[data-ignore]'); if (!cb) return;
+    const k = cb.dataset.ignore, on = cb.checked;
+    commit(() => { const set = ignored(); on ? set.add(k) : set.delete(k); state.ignored = [...set]; });
+    toast(on ? 'Anomalie masquée · décochez-la pour la réafficher' : 'Anomalie réaffichée');
+  });
   $('#btnMenu').addEventListener('click', () => openSheet('sheetMenu'));
   $$('[data-open]').forEach(b => b.addEventListener('click', () => openSheet(b.dataset.open)));
   document.addEventListener('click', e => {
@@ -1566,6 +1589,7 @@ function init() {
     const ar = e.target.closest('[data-anom]');
     if (ar) { sel = ar.dataset.anom; closeSheets(); if (prefs.view === '3d') setView('plan'); renderAll(true); }
     if (e.target.closest('[data-anom-weight]')) { closeSheets(); openSheet('sheetList'); }
+    if (e.target.closest('#unignoreAll')) commit(() => { state.ignored = []; });
   });
   $('#scrim').addEventListener('click', () => closeSheets());
   $('#gridSeg').addEventListener('click', e => { const b = e.target.closest('[data-grid]'); if (!b) return; prefs.grid = +b.dataset.grid; savePrefs(); $$('#gridSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
