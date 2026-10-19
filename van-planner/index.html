@@ -713,6 +713,9 @@ const LIB = [
   { t: 'wallcab', cat: 'storage', name: 'Placard haut', w: 1000, d: 300, h: 400, z: 1450, kg: 14 },
   { t: 'wardrobe', cat: 'storage', name: 'Colonne / penderie', w: 500, d: 550, h: 1800, z: 0, kg: 28 },
   { t: 'chest', cat: 'storage', name: 'Coffre de rangement', w: 600, d: 400, h: 400, z: 0, kg: 10 },
+  { t: 'kit_garage', cat: 'storage', name: 'Garage : 2 tiroirs + plancher', w: 0, d: 0, h: 0, z: 0, kg: 0 },
+  { t: 'drawer', cat: 'storage', name: 'Tiroir coulissant', w: 1200, d: 600, h: 250, z: 0, kg: 15 },
+  { t: 'deck', cat: 'storage', name: 'Plancher surélevé', w: 1500, d: 1790, h: 18, z: 300, kg: 25 },
   { t: 'shower', cat: 'wash', name: 'Cabine douche / WC', w: 800, d: 800, h: 1850, z: 0, kg: 40 },
   { t: 'toilet', cat: 'wash', name: 'Toilettes sèches', w: 450, d: 500, h: 480, z: 0, kg: 8 },
   { t: 'water', cat: 'water', name: 'Réservoir eau propre 100 L', w: 800, d: 350, h: 380, z: 0, kg: 108 },
@@ -747,6 +750,9 @@ const ICONS = {
   seat_d: '<path d="M9 30h21v6H9z"/><path d="M30 36V11a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v25z"/><path d="M13 36v5M33 36v5M9 41h28"/>',
   seat_p: '<path d="M9 30h21v6H9z"/><path d="M30 36V11a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v25z"/><path d="M13 36v5M33 36v5M9 41h28"/>',
   seat_b: '<rect x="6" y="8" width="30" height="32" rx="5"/><rect x="36" y="8" width="6" height="32" rx="2"/><path d="M6 24h30"/>',
+  drawer: '<rect x="5" y="16" width="30" height="18" rx="2"/><rect x="35" y="16" width="6" height="18" rx="1"/><path d="M12 25h14M22 21l4 4-4 4"/><path d="M41 23v4"/>',
+  deck: '<rect x="4" y="18" width="40" height="5" rx="1"/><path d="M17 18v5M31 18v5M7 23v12M41 23v12"/>',
+  kit_garage: '<rect x="4" y="12" width="40" height="4" rx="1"/><rect x="5" y="19" width="18" height="16" rx="2"/><rect x="25" y="19" width="18" height="16" rx="2"/><path d="M11 27h6M31 27h6"/>',
   box: '<rect x="9" y="9" width="30" height="30" rx="3"/><path d="M9 9l30 30" stroke-dasharray="3 3"/>'
 };
 const icon = t => `<svg viewBox="0 0 48 48" aria-hidden="true">${ICONS[t] || ICONS.box}</svg>`;
@@ -968,6 +974,16 @@ function planSymbol(m) {
     case 'wallcab': g += Ln(0, 0, L, S) + Ln(0, S, L, 0); break;
     case 'wardrobe': { g += Ln(L * 0.06, S / 2, L * 0.94, S / 2); for (let u = L * 0.12; u < L * 0.9; u += 90) g += Ln(u, S / 2 - S * 0.22, u + 25, S / 2 + S * 0.22); break; }
     case 'chest': g += Ln(0, S * 0.3, L, S * 0.3); break;
+    case 'drawer': {
+      const cy = m.y + m.d / 2, a0 = m.x + m.w * 0.2, a1 = m.x + m.w * 0.75, ah = Math.min(70, m.d * 0.15);
+      return `<g class="sym"><line x1="${a0}" y1="${cy}" x2="${a1}" y2="${cy}"/><polyline points="${a1 - ah},${cy - ah} ${a1},${cy} ${a1 - ah},${cy + ah}"/><line x1="${m.x + m.w - 60}" y1="${m.y + m.d * 0.35}" x2="${m.x + m.w - 60}" y2="${m.y + m.d * 0.65}"/></g>`;
+    }
+    case 'deck': {
+      const nL = Math.max(1, Math.ceil(L / 2500)), nP = Math.max(1, Math.ceil(S / 1220));
+      for (let i = 1; i < nL; i++) g += Ln(L * i / nL, 0, L * i / nL, S);
+      for (let j = 1; j < nP; j++) g += Ln(0, S * j / nP, L, S * j / nP);
+      break;
+    }
     case 'shower': g += Ln(0, 0, L, S) + Ln(0, S, L, 0) + C(L / 2, S / 2, Math.min(45, S * 0.07)); break;
     case 'toilet': { g += R(L * 0.06, S * 0.2, L * 0.24, S * 0.6, 20); const [cx, cy] = P(L * 0.62, S / 2); const rx = H ? L * 0.3 : S * 0.32, ry = H ? S * 0.32 : L * 0.3; g += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`; break; }
     case 'water': g += wave(S * 0.14); break;
@@ -1045,6 +1061,11 @@ function renderPlan(issues) {
     g += C.h(c.L, m.x, midY, f(m.x - c.L)) + C.h(m.x + m.w, c.R, midY, f(c.R - m.x - m.w));
     g += C.v(c.T, m.y, midX, f(m.y - c.T)) + C.v(m.y + m.d, c.B, midX, f(c.B - m.y - m.d));
     g += C.h(m.x, m.x + m.w, m.y - px(16), f(m.w)) + C.v(m.y, m.y + m.d, m.x - px(16), f(m.d));
+    if (m.t === 'drawer') {
+      const tr = Math.max(0, m.w - 100);
+      g += `<rect x="${m.x + m.w}" y="${m.y}" width="${tr}" height="${m.d}" rx="${px(3)}" fill="var(--accent)" fill-opacity=".06" stroke="var(--accent)" stroke-dasharray="6 4" vector-effect="non-scaling-stroke" stroke-width="1.2" pointer-events="none"/>`;
+      g += `<text class="lbl" x="${m.x + m.w + tr / 2}" y="${m.y + m.d / 2 + px(4)}" font-size="${px(10)}" text-anchor="middle" style="fill:var(--accent)">OUVERT +${f(tr)}</text>`;
+    }
     g += `<rect class="handle" data-handle="se" data-id="${m.id}" x="${m.x + m.w - px(hs / 2)}" y="${m.y + m.d - px(hs / 2)}" width="${px(hs)}" height="${px(hs)}" rx="${px(hs / 2)}" vector-effect="non-scaling-stroke" stroke-width="2"/>`;
   }
   svg.innerHTML = g;
@@ -1287,6 +1308,11 @@ function anomalies(issues = allIssues()) {
       const cover = Math.min(m.x + m.w, v.door.x + v.door.len) - Math.max(m.x, v.door.x);
       out.push({ key: `${m.id}|door`, id: m.id, name: m.name, level: 'warn', text: `Devant la porte latérale sur ${f(cover)} mm : vérifiez que l’accès reste possible` });
     }
+    if (m.t === 'drawer') {
+      const c = clearances(m), gap = c.R - (m.x + m.w);
+      if (c.nR !== 'portes arrière') out.push({ key: `${m.id}|drawer-block`, id: m.id, name: m.name, level: 'warn', text: `Ne peut pas sortir : « ${c.nR} » est à ${f(gap)} mm devant la façade` });
+      else if (gap > 150) out.push({ key: `${m.id}|drawer-gap`, id: m.id, name: m.name, level: 'warn', text: `Façade à ${f(gap)} mm des portes arrière : rapprochez-la pour qu’il sorte entièrement` });
+    }
     if (m.cat === 'cab' && m.t !== 'seat_b') {
       const c = clearances(m), leg = m.x - c.L;
       if (c.nL === 'tableau de bord' && leg < 250) out.push({ key: `${m.id}|legroom`, id: m.id, name: m.name, level: 'warn', text: `Seulement ${f(leg)} mm devant le siège jusqu’au tableau de bord : peu de place pour les jambes` });
@@ -1353,7 +1379,7 @@ const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 function renderLibrary() {
   const q = norm(($('#libSearch').value || '').trim());
   const items = LIB.map((it, i) => [it, i]).filter(([it]) => (libCat === 'all' || it.cat === libCat) && (!q || norm(it.name + ' ' + CATS[it.cat].label).includes(q)));
-  $('#libCards').innerHTML = items.map(([it, i]) => `<button class="card" data-lib="${i}"><span class="art" style="background:${catColor(it.cat)}">${icon(it.t)}</span><b>${esc(it.name)}</b><small>${f(it.w)} × ${f(it.d)} × ${f(it.h)}</small></button>`).join('');
+  $('#libCards').innerHTML = items.map(([it, i]) => `<button class="card" data-lib="${i}"><span class="art" style="background:${catColor(it.cat)}">${icon(it.t)}</span><b>${esc(it.name)}</b><small>${it.t === 'kit_garage' ? 'calé sur votre véhicule' : `${f(it.w)} × ${f(it.d)} × ${f(it.h)}`}</small></button>`).join('');
   $('#libEmpty').hidden = items.length > 0;
   $('#libCats').innerHTML = [['all', 'Tous'], ...Object.entries(CATS).filter(([k]) => LIB.some(i => i.cat === k)).map(([k, c]) => [k, c.label])].map(([k, l]) => `<button class="cat" data-cat="${k}" aria-pressed="${k === libCat}">${l}</button>`).join('');
 }
@@ -1363,12 +1389,34 @@ function findSpot(m) {
   for (let x = I.x0; x + m.w <= I.x1; x += 50) for (let y = I.y0; y + m.d <= I.y1; y += 50) if (free({ x, y })) return { x, y };
   return { x: Math.max(I.x0, (I.x0 + I.x1 - m.w) / 2), y: Math.max(I.y0, (I.y0 + I.y1 - m.d) / 2) };
 }
+function addGarageKit() {
+  const v = V(), I = inner(), gap = 20;
+  const y0 = Math.max(I.y0, v.arch.w) + gap, y1 = Math.min(I.y1, v.W - v.arch.w) - gap;
+  const dw = Math.round((y1 - y0 - gap) / 2), len = Math.round(Math.min(1500, I.x1 - Math.max(0, I.x0) - 100));
+  const h = Math.max(150, v.arch.h - 40), x = I.x1 - len - 5;
+  const mk = (t, name, x, y, w, d, h, z, kg) => ({ id: uid(), t, cat: 'storage', name, x, y, w, d, h, z, kg });
+  const a = mk('drawer', 'Tiroir gauche', x, y0, len, dw, h, 0, 15), b = mk('drawer', 'Tiroir droit', x, y0 + dw + gap, len, dw, h, 0, 15);
+  const dx = x - 15, deck = mk('deck', 'Plancher du garage', dx, I.y0, I.x1 - dx, I.y1 - I.y0, 18, Math.max(v.arch.h, h + 10) + 2, 25);
+  closeSheets();
+  commit(() => { state.modules.push(a, b, deck); sel = deck.id; });
+  toast(`2 tiroirs de ${f(len)} × ${f(dw)} mm et un plancher ajoutés · réglez-les dans le panneau`);
+}
 function addFromLib(i) {
   const it = LIB[i], I = inner();
+  if (it.t === 'kit_garage') return addGarageKit();
   const m = { id: uid(), t: it.t, cat: it.cat, name: it.name, w: it.w, d: it.d, h: it.h, z: it.z, kg: it.kg, x: 0, y: 0 };
   if (it.cat === 'sleep' && m.d > I.y1 - I.y0) m.d = I.y1 - I.y0;
   if (m.z + m.h > I.z1) m.z = Math.max(0, I.z1 - m.h);
-  if (it.cat === 'cab') placeSeats(V(), [m]); else Object.assign(m, findSpot(m));
+  if (it.cat === 'cab') placeSeats(V(), [m]);
+  else if (it.t === 'deck') Object.assign(m, { x: I.x0, y: I.y0, w: I.x1 - I.x0, d: I.y1 - I.y0, z: Math.max(V().arch.h, m.z) + 2 });
+  else if (it.t === 'drawer') {
+    m.x = I.x1 - m.w - 5;
+    const A = arches(), free = () => !A.some(a => overlap3(m, a)) && !state.modules.some(o => overlap3(m, o));
+    let ok = false;
+    for (let y = I.y0; y + m.d <= I.y1 && !ok; y += 10) { m.y = y; ok = free(); }
+    if (!ok) Object.assign(m, findSpot(m));
+  }
+  else Object.assign(m, findSpot(m));
   closeSheets();
   commit(() => { state.modules.push(m); sel = m.id; });
   toast(`${it.name} ajouté · réglez ses cotes dans le panneau`);
@@ -1399,13 +1447,15 @@ const BUILD = {
   box: { kind: 'case', th: 15, shelves: 0, back: true },
   bench: { kind: 'bench', th: 15, shelves: 0, back: true },
   bed_t: { kind: 'bed', th: 18 }, bed_l: { kind: 'bed', th: 18 },
-  table: { kind: 'top', th: 18 }
+  table: { kind: 'top', th: 18 },
+  drawer: { kind: 'drawer', th: 15 },
+  deck: { kind: 'deck', th: 18 }
 };
 const buildOf = m => m.build || (BUILD[m.t] ? { ...BUILD[m.t] } : null);
 const ensureBuild = m => (m.build = m.build || { ...BUILD[m.t] });
 function panels(m) {
   const b = buildOf(m); if (!b || b.off) return [];
-  const t = clamp(+b.th || 15, 3, 40), alongX = m.w >= m.d, L = alongX ? m.w : m.d, P = alongX ? m.d : m.w, H = m.h, I = inner();
+  const t = clamp(+b.th || 15, 3, 40), alongX = b.kind === 'drawer' || m.w >= m.d, L = alongX ? m.w : m.d, P = alongX ? m.d : m.w, H = m.h, I = inner();
   const backMin = alongX ? (m.y - I.y0) <= (I.y1 - m.y - m.d) : (m.x - I.x0) <= (I.x1 - m.x - m.w);
   const bx = (u0, u1, v0, v1, z0, z1) => {
     const a = backMin ? v0 : P - v1, c = backMin ? v1 : P - v0;
@@ -1427,6 +1477,16 @@ function panels(m) {
     const n = Math.min(L, P) > 1220 ? Math.ceil(L / 1220) : 1, seg = L / n;
     for (let k = 0; k < n; k++) add(n > 1 ? `Plateau de lit (${k + 1}/${n})` : 'Plateau de lit', seg, P, bx(k * seg + (k ? 2 : 0), (k + 1) * seg - (k < n - 1 ? 2 : 0), 0, P, 0, t));
   } else if (b.kind === 'top') add('Plateau', L, P, bx(0, L, 0, P, Math.max(0, H - t), H));
+  else if (b.kind === 'drawer') {
+    add('Façade', P, H, bx(L - t, L, 0, P, 0, H));
+    add('Côté', L - t, H, bx(0, L - t, 0, t, 0, H)); add('Côté', L - t, H, bx(0, L - t, P - t, P, 0, H));
+    add('Arrière', P - 2 * t, H - t, bx(0, t, t, P - t, t, H));
+    add('Fond', L - t, P - 2 * t, bx(0, L - t, t, P - t, 0, t));
+  } else if (b.kind === 'deck') {
+    const nL = Math.max(1, Math.ceil(L / 2500)), nP = Math.max(1, Math.ceil(P / 1220)), sl = L / nL, sp = P / nP, n = nL * nP;
+    let k = 0;
+    for (let i = 0; i < nL; i++) for (let j = 0; j < nP; j++) { k++; add(n > 1 ? `Plancher (${k}/${n})` : 'Plancher', sl, sp, bx(i * sl + (i ? 1 : 0), (i + 1) * sl - (i < nL - 1 ? 1 : 0), j * sp + (j ? 1 : 0), (j + 1) * sp - (j < nP - 1 ? 1 : 0), Math.max(0, H - t), H)); }
+  }
   return out;
 }
 function groupPieces(pn) {
@@ -1464,7 +1524,8 @@ function renderBuild(force) {
   const pcs = groupPieces(panels(m));
   $('#buildList').innerHTML = on ? pcs.map(p => `<tr><td>${p.qty > 1 ? p.qty + ' × ' : ''}${esc(p.name)}</td><td class="num">${f(p.a)} × ${f(p.c)} × ${p.th}</td></tr>`).join('') : '';
   const area = panels(m).reduce((t, p) => t + p.a * p.c / 1e6, 0);
-  $('#buildHint').textContent = on ? `${pcs.reduce((t, p) => t + p.qty, 0)} planches · ${f2(area)} m² · ≈ ${f(area * (+b.th || 15) * DENS)} kg de bois. Toutes les planches sont dans Liste → Planches.` : 'Meuble acheté tout fait : pas de planches à découper.';
+  const slide = kind === 'drawer' ? ` Coulisses : 2 × ${f(Math.max(250, Math.floor((m.w - 30) / 50) * 50))} mm à sortie totale, charge ≥ 100 kg.` : '';
+  $('#buildHint').textContent = on ? `${pcs.reduce((t, p) => t + p.qty, 0)} planches · ${f2(area)} m² · ≈ ${f(area * (+b.th || 15) * DENS)} kg de bois. Toutes les planches sont dans Liste → Planches.${slide}` : 'Meuble acheté tout fait : pas de planches à découper.';
 }
 function renderList(issues) {
   const rows = [...state.modules].sort((a, b) => a.x - b.x || a.y - b.y), kg = rows.reduce((t, m) => t + (+m.kg || 0), 0);
