@@ -1,6 +1,6 @@
 // Hors ligne : la page passe par le réseau d'abord (pour recevoir les mises à jour),
 // le reste (icônes, polices) est servi depuis le cache puis rafraîchi.
-const CACHE = 'atelier-van-v12';
+const CACHE = 'atelier-van-v13';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
