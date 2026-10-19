@@ -666,6 +666,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
       <label class="field"><span>Taille de roue</span><select data-v="rack.bikeWheel"><option value="26">26 pouces</option><option value="27.5">27,5 pouces</option><option value="29">29 pouces</option></select></label>
       <label class="field"><span>Fixation de fourche (depuis l’avant de la galerie)</span><input type="number" inputmode="decimal" data-v="rack.bikeX"></label>
       <label class="field"><span>Poids par vélo (kg)</span><input type="number" inputmode="decimal" data-v="rack.bikeKg"></label>
+      <label class="field"><span>Roue avant démontée</span><select id="optFrontWheel"><option value="upright">Debout, porte-roue à côté du vélo</option><option value="flat">À plat sur la galerie</option><option value="inside">Rangée dans le van</option></select></label>
     </div>
     <div class="subh">Cloison</div>
     <div class="menu"><label class="mitem"><div class="grow">Cloison en place<small>Désactivez si vous la démontez : le lit et les meubles peuvent alors passer dans la cabine</small></div><input type="checkbox" class="switch" id="optPartition"></label></div>
@@ -916,8 +917,21 @@ function bikeModel(rk) {
   const N = { A: [0, 0], B: [0.37 * wb, -60], S: [0.21 * wb, 0.43 * wb], H1: [0.85 * wb, 0.55 * wb], H2: [0.89 * wb, 0.44 * wb], F: [wb, 0], P1: [0.18 * wb, 0.66 * wb], P2: [0.27 * wb, 0.66 * wb], BAR: [0.82 * wb, 0.62 * wb] };
   const P = {}; for (const [k, [x, z]] of Object.entries(N)) P[k] = [x * ca - z * sa, R + x * sa + z * ca];
   const tubes = [['A', 'B', 18, [-60, 60]], ['A', 'S', 12, [-55, 55]], ['B', 'S', 18], ['S', 'H1', 18], ['B', 'H2', 22], ['H1', 'H2', 22], ['H2', 'F', 15, [-50, 50]], ['S', 'P1', 12], ['P1', 'P2', 35], ['H1', 'BAR', 15]];
-  const top = Math.max(...Object.values(P).map(p => p[1]), R * 2);
-  return { R, wb, hm, P, tubes, top, len: P.F[0] + R };
+  const fwMode = rk.frontWheel || 'upright';
+  const top = Math.max(...Object.values(P).map(p => p[1]), R * 2, fwMode === 'upright' ? 2 * R + 30 : fwMode === 'flat' ? 70 : 0);
+  return { R, wb, hm, P, tubes, top, len: P.F[0] + R, fwMode };
+}
+// Position de la roue avant rangée sur la galerie (centre), pour le vélo i placé en yc
+function frontWheelPos(rk, bm, yc) {
+  const y0 = (V().W - rk.w) / 2, y1 = y0 + rk.w, xm = rk.x + (+rk.bikeX || 150), side = yc + 170 + 40 <= y1 ? 1 : -1;
+  if (bm.fwMode === 'upright') return { x: xm + bm.P.F[0] * 0.55, y: yc + side * 170 };
+  if (bm.fwMode === 'flat') {
+    if (xm + bm.len + 60 + 2 * bm.R <= rk.x + rk.len) return { x: xm + bm.len + 60 + bm.R, y: yc };
+    if (xm - 60 - 2 * bm.R >= rk.x) return { x: xm - 60 - bm.R, y: yc };
+    const fy = clamp(yc + side * (bm.R + 90), y0 + bm.R, y1 - bm.R);
+    return { x: xm + bm.P.F[0] * 0.5, y: fy };
+  }
+  return null;
 }
 const bikeCount = rk => clamp(Math.round(+rk.bikes || 0), 0, 4);
 const totalKg = () => state.modules.reduce((t, m) => t + (+m.kg || 0), 0) + (rackOf() ? (+rackOf().kg || 0) + bikeCount(rackOf()) * (+rackOf().bikeKg || 0) : 0);
@@ -1119,7 +1133,10 @@ function renderPlan(issues) {
   for (const a of arches(v)) g += `<rect class="arch" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${a.x}" y="${a.y}" width="${a.w}" height="${a.d}"/>`;
   g += `<text class="lbl strong" x="${v.L}" y="-220" font-size="${fs}" text-anchor="end">CÔTÉ PASSAGER</text>`;
   const rkp = rackOf(v);
- if (rkp && bikeCount(rkp)) { const bm = bikeModel(rkp), nb = bikeCount(rkp), xm = rkp.x + (+rkp.bikeX || 150); for (let i = 0; i < nb; i++) { const yc = (W - rkp.w) / 2 + rkp.w * (i + 1) / (nb + 1); g += `<line x1="${xm}" y1="${yc}" x2="${xm + bm.len}" y2="${yc}" stroke="var(--accent)" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" stroke-width="2" pointer-events="none"/>`; } }
+ if (rkp && bikeCount(rkp)) { const bm = bikeModel(rkp), nb = bikeCount(rkp), xm = rkp.x + (+rkp.bikeX || 150); for (let i = 0; i < nb; i++) { const yc = (W - rkp.w) / 2 + rkp.w * (i + 1) / (nb + 1); g += `<line x1="${xm}" y1="${yc}" x2="${xm + bm.len}" y2="${yc}" stroke="var(--accent)" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" stroke-width="2" pointer-events="none"/>`;
+      const fp = frontWheelPos(rkp, bm, yc);
+      if (fp && bm.fwMode === 'upright') g += `<line x1="${fp.x - bm.R}" y1="${fp.y}" x2="${fp.x + bm.R}" y2="${fp.y}" stroke="var(--accent)" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" stroke-width="2" pointer-events="none"/>`;
+      if (fp && bm.fwMode === 'flat') g += `<circle cx="${fp.x}" cy="${fp.y}" r="${bm.R}" fill="none" stroke="var(--accent)" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" stroke-width="1.6" pointer-events="none"/>`; } }
   if (rkp) g += `<rect x="${rkp.x}" y="${(W - rkp.w) / 2}" width="${rkp.len}" height="${rkp.w}" fill="none" stroke="var(--muted)" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" stroke-width="1.2" pointer-events="none"/><text class="lbl" x="${rkp.x + px(6)}" y="${(W - rkp.w) / 2 + px(14)}" font-size="${px(9.5)}">GALERIE DE TOIT</text>`;
   g += `<text class="lbl strong" x="${v.L}" y="${W + 95}" font-size="${fs}" text-anchor="end">CÔTÉ CONDUCTEUR</text>`;
   g += `<text class="lbl" x="${v.L + 55 + px(6)}" y="${W / 2}" font-size="${px(10)}" text-anchor="middle" transform="rotate(90 ${v.L + 55 + px(6)} ${W / 2})">PORTES ARRIÈRE</text>`;
@@ -1214,6 +1231,9 @@ function renderElev(issues) {
       for (const [a, b] of bm.tubes) { const [x1, y1] = pt(a), [x2, y2] = pt(b); g += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--accent)" vector-effect="non-scaling-stroke" stroke-width="2"/>`; }
       const [ax, ay] = pt('A'); g += `<circle cx="${ax}" cy="${ay}" r="${bm.R - 15}" fill="none" stroke="var(--ink)" vector-effect="non-scaling-stroke" stroke-width="2"/>`;
       g += `<rect x="${xm - 60}" y="${-(rail + bm.hm + 25)}" width="120" height="${bm.hm + 25}" fill="var(--ink)"/>`;
+      const fp = frontWheelPos(rk, bm, (V().W - rk.w) / 2 + rk.w / (nb + 1));
+      if (fp && bm.fwMode === 'upright') g += `<circle cx="${fp.x}" cy="${-(rail + 30 + bm.R)}" r="${bm.R - 15}" fill="none" stroke="var(--ink)" stroke-dasharray="6 4" vector-effect="non-scaling-stroke" stroke-width="1.6"/>`;
+      if (fp && bm.fwMode === 'flat') g += `<rect x="${fp.x - bm.R}" y="${-(rail + 60)}" width="${2 * bm.R}" height="56" rx="20" fill="none" stroke="var(--ink)" vector-effect="non-scaling-stroke" stroke-width="1.6"/>`;
       g += C.v(-(top + 30), -(rail + bm.top), Math.max(ax + bm.R, rk.x + rk.len) + 120, `hors tout ${f(V().ext.sill + top + 30 + rk.h + bm.top)} du sol`, 'grey');
       g += `<text class="lbl" x="${xm}" y="${-(rail + bm.top) - px(6)}" font-size="${px(10)}">${nb} VÉLO${nb > 1 ? 'S' : ''} · ROUE AVANT DÉMONTÉE</text>`;
     } else g += `<text class="lbl" x="${rk.x + rk.len / 2}" y="${rz - rk.h - px(6)}" font-size="${px(10)}" text-anchor="middle">GALERIE ${f(rk.len)} × ${f(rk.w)}</text>`;
@@ -1472,6 +1492,19 @@ function build3D() {
         const wheel = new THREE.Mesh(new THREE.TorusGeometry(bm.R - 28, 28, 10, 40), tyre); wheel.position.copy(pw('A')); wheel.castShadow = true; group.add(wheel);
         const disc = new THREE.Mesh(new THREE.CylinderGeometry(bm.R - 50, bm.R - 50, 6, 32), mat(col('--rim3d'), { transparent: true, opacity: .35, depthWrite: false })); disc.rotation.x = Math.PI / 2; disc.position.copy(pw('A')); group.add(disc);
         box(xm - 60, yc - 60, rail, 120, 120, bm.hm + 25, rm);
+        const fp = frontWheelPos(rk, bm, yc);
+        if (fp) {
+          const fwh = new THREE.Mesh(new THREE.TorusGeometry(bm.R - 28, 28, 10, 40), tyre), fd = new THREE.Mesh(new THREE.CylinderGeometry(bm.R - 50, bm.R - 50, 6, 32), mat(col('--rim3d'), { transparent: true, opacity: .35, depthWrite: false }));
+          if (bm.fwMode === 'upright') {
+            fwh.position.set(fp.x - cx, rail + 30 + bm.R, fp.y - W / 2); fd.rotation.x = Math.PI / 2; fd.position.copy(fwh.position);
+            box(fp.x - bm.R * 0.7, fp.y - 35, rail, bm.R * 1.4, 70, 30, rm);
+            box(fp.x - 15, fp.y - 15, rail, 30, 30, bm.R + 30, rm);
+          } else {
+            fwh.rotation.x = Math.PI / 2; fwh.position.set(fp.x - cx, rail + 30, fp.y - W / 2); fd.position.copy(fwh.position);
+            for (const dx of [-bm.R * 0.6, bm.R * 0.6]) box(fp.x + dx - 20, fp.y - 20, rail, 40, 40, 30, rm);
+          }
+          fwh.castShadow = true; group.add(fwh, fd);
+        }
         box(xm - 120, yc - 40, rail, bm.P.F[0] - bm.P.A[0] + bm.R + 220, 80, 28, rm);
       }
     }
@@ -1861,6 +1894,7 @@ function renderVan() {
   for (const id of ['#projName', '#projName2']) if (document.activeElement !== $(id)) $(id).value = state.name || '';
   $('#optPartition').checked = !!v.cab.partition;
   $('#optSideWin').checked = !!(v.ext && v.ext.sideWin);
+  if (v.rack) $('#optFrontWheel').value = v.rack.frontWheel || 'upright';
 }
 
 /* ---------- Interactions sur les dessins ---------- */
@@ -2094,6 +2128,7 @@ function init() {
   });
   $('#scrim').addEventListener('click', () => closeSheets());
   $('#gridSeg').addEventListener('click', e => { const b = e.target.closest('[data-grid]'); if (!b) return; prefs.grid = +b.dataset.grid; savePrefs(); $$('#gridSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+  $('#optFrontWheel').addEventListener('change', e => { const val = e.target.value; commit(() => { if (V().rack) V().rack.frontWheel = val; }); });
   $('#optSideWin').addEventListener('change', e => { const on = e.target.checked; commit(() => { V().ext.sideWin = on; resetViews(); }); });
   $('#optRack').addEventListener('change', e => { const on = e.target.checked; commit(() => { const v = V(); if (on) v.rack = v.rack ? { ...defaultRack(v), ...v.rack, on: true } : defaultRack(v); else if (v.rack) v.rack.on = false; resetViews(); }); toast(on ? 'Galerie de toit ajoutée' : 'Galerie de toit retirée'); });
   $('#optPartition').addEventListener('change', e => { const on = e.target.checked; commit(() => { V().cab.partition = on; resetViews(); }); toast(on ? 'Cloison remise en place' : 'Cloison retirée : la cabine fait partie de l’espace'); });
