@@ -123,6 +123,16 @@ svg.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-widt
 .vanchip:hover { border-color: var(--line-strong); }
 .ibtn { display: inline-grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--ink); flex: none; }
 .ibtn:hover { background: var(--surface-2); }
+#syncChip { position: relative; }
+.sdot { position: absolute; right: 7px; bottom: 8px; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--surface); background: var(--ok); }
+.sdot.busy { background: var(--accent); }
+.sdot.err { background: var(--danger); }
+.sdot.off { background: var(--muted); }
+.syncbox { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.syncstate { font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.syncstate .sdot { position: static; border: 0; }
+.codebox { font-family: var(--font-mono); font-size: 11.5px; word-break: break-all; background: var(--surface-2); border-radius: 8px; padding: 8px 10px; user-select: all; -webkit-user-select: all; }
+ol.steps { margin: 0; padding-left: 20px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
 .ibtn:disabled { opacity: .35; cursor: default; background: transparent; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 13px; font-weight: 500; white-space: nowrap; }
 .btn:hover { border-color: var(--line-strong); }
@@ -480,6 +490,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3 3.8M6.6 6.6C3.7 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></symbol>
   <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 9.5a4.3 4.3 0 0 1-.5 8.5z"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
 </svg>
 
@@ -489,6 +500,7 @@ tfoot td { font-weight: 600; border-bottom: 0; }
     <input class="proj" id="projName" type="text" aria-label="Nom du projet" autocomplete="off">
     <div class="spacer"></div>
     <button class="vanchip" id="btnVan" title="Changer de véhicule"><svg class="i"><use href="#i-van"/></svg><span id="vanLabel"></span><svg class="i" style="width:16px;height:16px"><use href="#i-chev"/></svg></button>
+    <button class="ibtn" id="syncChip" hidden aria-label="Synchronisation" title="Synchronisation"><svg class="i"><use href="#i-cloud"/></svg><span class="sdot" id="syncDot"></span></button>
     <button class="ibtn" id="btnUndo" title="Annuler (Ctrl+Z)" aria-label="Annuler"><svg class="i"><use href="#i-undo"/></svg></button>
     <button class="ibtn" id="btnRedo" title="Rétablir (Ctrl+Y)" aria-label="Rétablir"><svg class="i"><use href="#i-redo"/></svg></button>
     <button class="btn sm desk" data-open="sheetLayers"><svg class="i" style="width:17px;height:17px"><use href="#i-layers"/></svg>Calques</button>
@@ -722,7 +734,29 @@ tfoot td { font-weight: 600; border-bottom: 0; }
       <button class="mitem" id="btnSample"><svg class="i"><use href="#i-star"/></svg><div class="grow">Charger l’exemple<small>Ducato L2H2 avec couchage arrière</small></div></button>
       <button class="mitem danger" id="btnNew"><svg class="i"><use href="#i-new"/></svg><div class="grow"><span id="newLabel">Nouveau plan</span><small>Vide le van, garde le véhicule et les sièges</small></div></button>
     </div>
-    <p class="hint">Le plan est enregistré automatiquement sur cet appareil. Pensez à l’exporter pour en garder une copie.</p>
+    <div class="subh">Synchronisation téléphone ↔ ordinateur</div>
+    <div class="syncbox" id="syncOff">
+      <ol class="steps">
+        <li>Dans Supabase, ouvrez <b>SQL Editor</b>, collez le script ci-dessous et cliquez sur <b>Run</b> (une seule fois).</li>
+        <li>Dans <b>Project Settings → API</b>, copiez l’<b>URL du projet</b> et la clé publique (<b>anon</b> ou <b>publishable</b>), puis collez-les ici.</li>
+        <li>Touchez <b>Activer</b>, puis copiez la clé de synchro et collez-la sur l’autre appareil.</li>
+      </ol>
+      <button class="btn sm" id="copySql" style="align-self:flex-start">Copier le script SQL</button>
+      <label class="field"><span>URL du projet Supabase</span><input id="syncUrl" type="url" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false"></label>
+      <label class="field"><span>Clé publique (anon / publishable)</span><input id="syncKey" type="text" autocomplete="off" spellcheck="false"></label>
+      <div class="row"><button class="btn primary" id="syncStart">Activer avec ce plan</button></div>
+      <div class="subh" style="margin-top:4px">Déjà activé sur un autre appareil ?</div>
+      <label class="field"><span>Collez la clé de synchro</span><textarea id="syncJoinKey" rows="3" spellcheck="false" style="min-height:0;font-family:var(--font-mono);font-size:12px"></textarea></label>
+      <div class="row"><button class="btn" id="syncJoin">Rejoindre</button></div>
+      <p class="hint" id="syncMsg"></p>
+    </div>
+    <div class="syncbox" id="syncOn" hidden>
+      <div class="syncstate"><span class="sdot" id="syncDot2"></span><span id="syncState"></span></div>
+      <div class="field"><span>Clé de synchro à coller sur l’autre appareil</span><div class="codebox" id="syncCode"></div></div>
+      <div class="row"><button class="btn primary sm" id="syncCopy">Copier la clé de synchro</button><button class="btn sm" id="syncNow">Synchroniser maintenant</button><button class="btn sm danger" id="syncStop">Arrêter sur cet appareil</button></div>
+      <p class="hint">Chaque modification est envoyée en quelques secondes ; l’autre appareil la récupère automatiquement. Si vous modifiez sur les deux exactement en même temps, la dernière modification l’emporte. Gardez la clé pour vous : elle donne accès au plan.</p>
+    </div>
+    <p class="hint">Le plan est aussi enregistré sur cet appareil, même hors ligne.</p>
   </div>
 </section>
 
@@ -885,7 +919,87 @@ function migrate(s) {
 }
 function load() { try { const s = JSON.parse(localStorage.getItem(STORE)); if (valid(s)) return migrate(s); } catch (e) {} return null; }
 let saveT = 0;
-function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }, 250); }
+function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }, 250); schedulePush(); }
+
+/* ---------- Synchronisation Supabase ---------- */
+const SYNC = 'atelier-van-sync';
+let sync = null; try { sync = JSON.parse(localStorage.getItem(SYNC)); } catch (e) {}
+let syncStatus = 'idle', syncErr = '', pushT = 0, pushing = false, dirty = false, applyingRemote = false;
+const saveSync = () => { try { sync ? localStorage.setItem(SYNC, JSON.stringify(sync)) : localStorage.removeItem(SYNC); } catch (e) {} };
+const syncKeyText = () => btoa(unescape(encodeURIComponent(JSON.stringify({ u: sync.u, k: sync.k, c: sync.c }))));
+function parseSyncKey(t) { const o = JSON.parse(decodeURIComponent(escape(atob(t.trim().replace(/\s+/g, ''))))); if (!o.u || !o.k || !o.c) throw new Error('clé'); return o; }
+async function rpc(fn, body, cfg = sync) {
+  const h = { apikey: cfg.k, 'Content-Type': 'application/json' };
+  if (!cfg.k.startsWith('sb_')) h.Authorization = `Bearer ${cfg.k}`;
+  const r = await fetch(`${cfg.u.replace(/\/+$/, '')}/rest/v1/rpc/${fn}`, { method: 'POST', headers: h, body: JSON.stringify(body) });
+  if (!r.ok) { let t = ''; try { t = (await r.json()).message || ''; } catch (e) {} throw new Error(r.status === 404 ? 'fonctions introuvables : lancez le script SQL dans Supabase' : r.status === 401 ? 'clé refusée : vérifiez la clé publique' : (t || `erreur ${r.status}`)); }
+  return r.json();
+}
+function setSync(st, err = '') { syncStatus = st; syncErr = err; renderSync(); }
+function schedulePush() { if (!sync || applyingRemote) return; dirty = true; clearTimeout(pushT); pushT = setTimeout(pushNow, 1200); setSync('busy'); }
+async function pushNow() {
+  if (!sync || pushing) return; if (!navigator.onLine) { setSync('offline'); return; }
+  pushing = true; const snap = JSON.stringify(state);
+  try { const t = await rpc('van_save', { p_id: sync.c, p_data: JSON.parse(snap) }); sync.last = t; saveSync(); if (JSON.stringify(state) === snap) dirty = false; setSync(dirty ? 'busy' : 'ok'); }
+  catch (e) { setSync('err', e.message); }
+  finally { pushing = false; if (dirty && sync) { clearTimeout(pushT); pushT = setTimeout(pushNow, 1500); } }
+}
+async function pullNow(force) {
+  if (!sync || pushing || (dirty && !force) || !navigator.onLine) { if (sync && !navigator.onLine) setSync('offline'); return; }
+  try {
+    const rows = await rpc('van_get', { p_id: sync.c }), row = rows && rows[0];
+    if (!row) { if (force) await pushNow(); return; }
+    if (!sync.last || new Date(row.updated_at) > new Date(sync.last)) {
+      if (dirty) return;
+      applyingRemote = true;
+      try { const keepSel = sel; state = migrate(row.data); sel = getM(keepSel) ? keepSel : null; try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} renderAll(); }
+      finally { applyingRemote = false; }
+      sync.last = row.updated_at; saveSync();
+    }
+    setSync('ok');
+  } catch (e) { setSync('err', e.message); }
+}
+function renderSync() {
+  const on = !!sync;
+  $('#syncChip').hidden = !on; $('#syncOff').hidden = on; $('#syncOn').hidden = !on;
+  const cls = { ok: '', busy: 'busy', err: 'err', offline: 'off', idle: 'busy' }[syncStatus] || '';
+  for (const id of ['#syncDot', '#syncDot2']) $(id).className = 'sdot ' + cls;
+  if (!on) return;
+  $('#syncState').textContent = { ok: 'Synchronisé', busy: 'Envoi en cours…', err: `Erreur : ${syncErr}`, offline: 'Hors ligne : les modifications partiront au retour du réseau', idle: 'Connexion…' }[syncStatus] || '';
+  $('#syncChip').title = $('#syncState').textContent;
+  $('#syncCode').textContent = syncKeyText();
+}
+function initSync() {
+  $('#copySql').addEventListener('click', async () => { try { const t = await (await fetch('supabase.sql')).text(); copy(t, 'Script SQL copié · collez-le dans Supabase → SQL Editor'); } catch (e) { toast('Script indisponible hors ligne'); } });
+  $('#syncStart').addEventListener('click', async () => {
+    const u = $('#syncUrl').value.trim(), k = $('#syncKey').value.trim();
+    if (!/^https?:\/\/.+/.test(u) || k.length < 20) { $('#syncMsg').textContent = 'Collez l’URL complète (https://…supabase.co) et la clé publique du projet.'; return; }
+    const c = 'van-' + (crypto.randomUUID ? crypto.randomUUID() : uid() + uid() + uid() + uid());
+    $('#syncMsg').textContent = 'Connexion…';
+    try { const t = await rpc('van_save', { p_id: c, p_data: state }, { u, k, c }); sync = { u, k, c, last: t }; saveSync(); dirty = false; setSync('ok'); $('#syncMsg').textContent = ''; toast('Synchronisation activée · copiez la clé pour l’autre appareil'); }
+    catch (e) { $('#syncMsg').textContent = 'Impossible de se connecter : ' + e.message; }
+  });
+  $('#syncJoin').addEventListener('click', async () => {
+    let cfg; try { cfg = parseSyncKey($('#syncJoinKey').value); } catch (e) { $('#syncMsg').textContent = 'Cette clé de synchro n’est pas valide. Copiez-la en entier depuis l’autre appareil.'; return; }
+    $('#syncMsg').textContent = 'Connexion…';
+    try {
+      const rows = await rpc('van_get', { p_id: cfg.c }, cfg);
+      if (!rows || !rows[0]) throw new Error('aucun plan trouvé pour cette clé');
+      pushUndo(); sync = { ...cfg, last: null }; saveSync(); dirty = false; await pullNow(true);
+      $('#syncMsg').textContent = ''; toast('Plan synchronisé depuis l’autre appareil · Annuler pour revenir');
+    } catch (e) { $('#syncMsg').textContent = 'Impossible de rejoindre : ' + e.message; }
+  });
+  $('#syncCopy').addEventListener('click', () => copy(syncKeyText(), 'Clé de synchro copiée · collez-la sur l’autre appareil (Plus → Synchronisation)'));
+  $('#syncNow').addEventListener('click', async () => { if (dirty) await pushNow(); await pullNow(true); });
+  $('#syncStop').addEventListener('click', () => { sync = null; saveSync(); clearTimeout(pushT); dirty = false; setSync('idle'); toast('Synchronisation arrêtée sur cet appareil · le plan reste ici'); });
+  $('#syncChip').addEventListener('click', () => openSheet('sheetMenu'));
+  setInterval(() => { if (sync && document.visibilityState === 'visible') pullNow(); }, 6000);
+  document.addEventListener('visibilitychange', () => { if (sync && document.visibilityState === 'visible') pullNow(); });
+  window.addEventListener('online', () => { if (sync) { if (dirty) pushNow(); else pullNow(); } });
+  window.addEventListener('offline', () => { if (sync) setSync('offline'); });
+  renderSync();
+  if (sync) { setSync('idle'); pullNow(); }
+}
 
 let state = load() || sample();
 let sel = null;
@@ -2243,6 +2357,7 @@ function init() {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { VB.plan = VB.elev = VB.sect = null; renderAll(); });
 }
 init();
+initSync();
 
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   // Recharge une fois quand une nouvelle version de l'app prend le relais.
