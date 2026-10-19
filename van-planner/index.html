@@ -53,6 +53,14 @@
   --c-other: #D7DCDA;
   --c-cab: #D3D9E2;
   --wood: #E2C79C;
+  --body3d: #F3F5F6;
+  --trim3d: #33393B;
+  --glass3d: #8FB8CC;
+  --tire3d: #1C1F20;
+  --rim3d: #A5ADB0;
+  --lamp3d: #FFF3C4;
+  --tail3d: #D23A2E;
+  --ground3d: #D9DEDC;
   --shadow: 0 1px 2px rgba(16, 24, 22, .06), 0 10px 30px rgba(16, 24, 22, .10);
   --shadow-sm: 0 1px 2px rgba(16, 24, 22, .08), 0 2px 8px rgba(16, 24, 22, .06);
   --scrim: rgba(10, 16, 14, .38);
@@ -68,7 +76,7 @@
     --accent: #8099FF; --accent-ink: #0E1312; --accent-soft: #1F2A4D; --danger: #F07B70; --danger-soft: #3A1F1D;
     --ok: #6BCB97; --ok-soft: #17301F; --warn: #E3B25A; --warn-soft: #3A2E17; --hatch: #4F5D5A; --mod-stroke: #C9D3CF; --floor3d: #4A3F2E;
     --c-sleep: #2F3E5B; --c-kitchen: #4E3E24; --c-storage: #493A28; --c-seat: #3E3354; --c-wash: #234330;
-    --c-water: #21464E; --c-energy: #4D4521; --c-other: #343C3B; --c-cab: #353C46; --wood: #7D6647;
+    --c-water: #21464E; --c-energy: #4D4521; --c-other: #343C3B; --c-cab: #353C46; --wood: #7D6647; --body3d: #CDD3D5; --trim3d: #23282A; --glass3d: #5D7F8F; --tire3d: #111314; --rim3d: #7F888B; --lamp3d: #E8DCA8; --tail3d: #B0322A; --ground3d: #1A2120;
     --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .45); --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 2px 8px rgba(0, 0, 0, .3);
     --scrim: rgba(0, 0, 0, .55);
     color-scheme: dark;
@@ -80,7 +88,7 @@
   --accent: #8099FF; --accent-ink: #0E1312; --accent-soft: #1F2A4D; --danger: #F07B70; --danger-soft: #3A1F1D;
   --ok: #6BCB97; --ok-soft: #17301F; --warn: #E3B25A; --warn-soft: #3A2E17; --hatch: #4F5D5A; --mod-stroke: #C9D3CF; --floor3d: #4A3F2E;
   --c-sleep: #2F3E5B; --c-kitchen: #4E3E24; --c-storage: #493A28; --c-seat: #3E3354; --c-wash: #234330;
-  --c-water: #21464E; --c-energy: #4D4521; --c-other: #343C3B; --c-cab: #353C46; --wood: #7D6647;
+  --c-water: #21464E; --c-energy: #4D4521; --c-other: #343C3B; --c-cab: #353C46; --wood: #7D6647; --body3d: #CDD3D5; --trim3d: #23282A; --glass3d: #5D7F8F; --tire3d: #111314; --rim3d: #7F888B; --lamp3d: #E8DCA8; --tail3d: #B0322A; --ground3d: #1A2120;
   --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .45); --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4), 0 2px 8px rgba(0, 0, 0, .3);
   --scrim: rgba(0, 0, 0, .55);
   color-scheme: dark;
@@ -215,6 +223,12 @@ svg.view.panning { cursor: grabbing; }
 .legend i { display: inline-block; width: 18px; height: 11px; border: 1.5px solid var(--mod-stroke); border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 .legend i.dash { border-style: dashed; }
 .legend i.bad { border-color: var(--danger); }
+.t3bar { position: absolute; left: 12px; bottom: 12px; right: 64px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; z-index: 5; pointer-events: none; }
+.t3bar > * { pointer-events: auto; }
+.chip3 { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 500; box-shadow: var(--shadow-sm); white-space: nowrap; }
+.chip3[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.t3tip { font-size: 12px; color: var(--muted); background: var(--surface); border-radius: 8px; padding: 3px 8px; opacity: .9; }
+@media (max-width: 860px) { .t3tip { display: none; } }
 .emptyhint { position: absolute; left: 50%; top: 55%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow); z-index: 4; max-width: min(320px, 86%); }
 .emptyhint p { margin: 0; color: var(--muted); font-size: 13px; }
 
@@ -509,6 +523,12 @@ tfoot td { font-weight: 600; border-bottom: 0; }
       <svg id="elev" class="view" role="img" aria-label="Vue de côté"></svg>
       <svg id="sect" class="view" role="img" aria-label="Vue depuis l’arrière"></svg>
       <div id="v3dwrap" class="view"><canvas id="v3d" aria-label="Vue 3D"></canvas><div class="v3dmsg" id="v3dmsg" hidden></div></div>
+      <div class="t3bar" id="t3bar" hidden>
+        <button class="chip3" id="t3Doors" aria-pressed="true"><span>Portes arrière ouvertes</span></button>
+        <button class="chip3" id="t3Body" aria-pressed="false"><span>Vue en coupe</span></button>
+        <button class="chip3" id="t3Drawers" aria-pressed="false"><span>Ouvrir les tiroirs</span></button>
+        <span class="t3tip">Glissez un tiroir pour le tirer · touchez une porte pour l’ouvrir</span>
+      </div>
       <div class="emptyhint" id="emptyHint" hidden>
         <h3>Votre van est vide</h3>
         <p>Ajoutez un lit, une cuisine ou un rangement, puis réglez ses cotes au millimètre.</p>
@@ -626,6 +646,22 @@ tfoot td { font-weight: 600; border-bottom: 0; }
       <label class="field"><span>Profondeur du tableau de bord</span><input type="number" inputmode="decimal" data-v="cab.dash"></label>
       <label class="field"><span>Hauteur intérieure</span><input type="number" inputmode="decimal" data-v="cab.h"></label>
     </div>
+    <div class="subh">Extérieur pour la 3D (mm)</div>
+    <div class="fgrid">
+      <label class="field"><span>Longueur du capot</span><input type="number" inputmode="decimal" data-v="ext.hood"></label>
+      <label class="field"><span>Hauteur du plancher au sol</span><input type="number" inputmode="decimal" data-v="ext.sill"></label>
+      <label class="field"><span>Rayon des roues</span><input type="number" inputmode="decimal" data-v="ext.wheel"></label>
+    </div>
+    <div class="subh">Galerie de toit</div>
+    <div class="menu"><label class="mitem"><div class="grow">Galerie de toit<small id="rackHint">Ajoute une galerie sur le pavillon, visible en 3D et sur les dessins</small></div><input type="checkbox" class="switch" id="optRack"></label></div>
+    <div class="fgrid" id="rackFields">
+      <label class="field"><span>Début (depuis la cloison)</span><input type="number" inputmode="decimal" data-v="rack.x"></label>
+      <label class="field"><span>Longueur</span><input type="number" inputmode="decimal" data-v="rack.len"></label>
+      <label class="field"><span>Largeur</span><input type="number" inputmode="decimal" data-v="rack.w"></label>
+      <label class="field"><span>Hauteur</span><input type="number" inputmode="decimal" data-v="rack.h"></label>
+      <label class="field"><span>Poids (kg)</span><input type="number" inputmode="decimal" data-v="rack.kg"></label>
+    </div>
+    <div class="subh">Cloison</div>
     <div class="menu"><label class="mitem"><div class="grow">Cloison en place<small>Désactivez si vous la démontez : le lit et les meubles peuvent alors passer dans la cabine</small></div><input type="checkbox" class="switch" id="optPartition"></label></div>
     <p class="hint">Les sièges sont des meubles comme les autres : touchez-les sur le plan pour les avancer, les redimensionner ou les supprimer. La bibliothèque (catégorie Cabine) permet de les remettre.</p>
     <p class="hint">Les cotes des modèles sont indicatives et varient selon l’année et la version. Mesurez votre véhicule et corrigez-les ici.</p>
@@ -715,14 +751,14 @@ const isMobile = () => matchMedia('(max-width: 860px)').matches;
 const STORE = 'atelier-van-v1', PREF = 'atelier-van-prefs';
 
 const PRESETS = {
-  ducato_l2h2: { label: 'Fiat Ducato / Jumper / Boxer L2H2', short: 'Ducato L2H2', L: 3120, W: 1870, H: 1932, lining: 40, floor: 25, arch: { x: 1520, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1075, h: 1755 }, payload: 1150, cab: { len: 1500, dash: 450, h: 1400, partition: true } },
-  ducato_l3h2: { label: 'Fiat Ducato / Jumper / Boxer L3H2', short: 'Ducato L3H2', L: 3705, W: 1870, H: 1932, lining: 40, floor: 25, arch: { x: 1900, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1250, h: 1755 }, payload: 1100, cab: { len: 1500, dash: 450, h: 1400, partition: true } },
-  ducato_l4h3: { label: 'Fiat Ducato / Jumper / Boxer L4H3', short: 'Ducato L4H3', L: 4070, W: 1870, H: 2172, lining: 40, floor: 25, arch: { x: 2050, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1250, h: 1955 }, payload: 1050, cab: { len: 1500, dash: 450, h: 1400, partition: true } },
-  sprinter_l2h2: { label: 'Mercedes Sprinter L2H2', short: 'Sprinter L2H2', L: 3265, W: 1780, H: 1940, lining: 40, floor: 25, arch: { x: 1700, len: 1000, w: 215, h: 320 }, door: { x: 230, len: 1300, h: 1820 }, payload: 1200, cab: { len: 1500, dash: 450, h: 1400, partition: true } },
-  crafter_l3h3: { label: 'Volkswagen Crafter / MAN TGE L3H3', short: 'Crafter L3H3', L: 3450, W: 1832, H: 1961, lining: 40, floor: 25, arch: { x: 1800, len: 950, w: 226, h: 310 }, door: { x: 240, len: 1311, h: 1800 }, payload: 1150, cab: { len: 1500, dash: 450, h: 1400, partition: true } },
-  trafic_l2h1: { label: 'Renault Trafic / Vivaro L2H1', short: 'Trafic L2H1', L: 2937, W: 1662, H: 1387, lining: 30, floor: 20, arch: { x: 1650, len: 850, w: 197, h: 260 }, door: { x: 230, len: 1032, h: 1284 }, payload: 1050, cab: { len: 1400, dash: 450, h: 1250, partition: true } },
-  custom_l2h1: { label: 'Ford Transit Custom L2H1', short: 'Transit Custom', L: 2921, W: 1775, H: 1406, lining: 30, floor: 20, arch: { x: 1600, len: 850, w: 191, h: 260 }, door: { x: 230, len: 1030, h: 1323 }, payload: 1000, cab: { len: 1400, dash: 450, h: 1250, partition: true } },
-  c15: { label: 'Citroën C15', short: 'C15', L: 1650, W: 1500, H: 1170, lining: 25, floor: 15, arch: { x: 720, len: 780, w: 250, h: 260 }, door: { x: 0, len: 0, h: 0 }, payload: 550, cab: { len: 1250, dash: 400, h: 1050, partition: true } }
+  ducato_l2h2: { label: 'Fiat Ducato / Jumper / Boxer L2H2', short: 'Ducato L2H2', L: 3120, W: 1870, H: 1932, lining: 40, floor: 25, arch: { x: 1520, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1075, h: 1755 }, payload: 1150, cab: { len: 1500, dash: 450, h: 1400, partition: true }, ext: { hood: 450, sill: 540, wheel: 345 } },
+  ducato_l3h2: { label: 'Fiat Ducato / Jumper / Boxer L3H2', short: 'Ducato L3H2', L: 3705, W: 1870, H: 1932, lining: 40, floor: 25, arch: { x: 1900, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1250, h: 1755 }, payload: 1100, cab: { len: 1500, dash: 450, h: 1400, partition: true }, ext: { hood: 450, sill: 540, wheel: 345 } },
+  ducato_l4h3: { label: 'Fiat Ducato / Jumper / Boxer L4H3', short: 'Ducato L4H3', L: 4070, W: 1870, H: 2172, lining: 40, floor: 25, arch: { x: 2050, len: 950, w: 224, h: 300 }, door: { x: 250, len: 1250, h: 1955 }, payload: 1050, cab: { len: 1500, dash: 450, h: 1400, partition: true }, ext: { hood: 450, sill: 560, wheel: 345 } },
+  sprinter_l2h2: { label: 'Mercedes Sprinter L2H2', short: 'Sprinter L2H2', L: 3265, W: 1780, H: 1940, lining: 40, floor: 25, arch: { x: 1700, len: 1000, w: 215, h: 320 }, door: { x: 230, len: 1300, h: 1820 }, payload: 1200, cab: { len: 1500, dash: 450, h: 1400, partition: true }, ext: { hood: 650, sill: 670, wheel: 350 } },
+  crafter_l3h3: { label: 'Volkswagen Crafter / MAN TGE L3H3', short: 'Crafter L3H3', L: 3450, W: 1832, H: 1961, lining: 40, floor: 25, arch: { x: 1800, len: 950, w: 226, h: 310 }, door: { x: 240, len: 1311, h: 1800 }, payload: 1150, cab: { len: 1500, dash: 450, h: 1400, partition: true }, ext: { hood: 600, sill: 600, wheel: 350 } },
+  trafic_l2h1: { label: 'Renault Trafic / Vivaro L2H1', short: 'Trafic L2H1', L: 2937, W: 1662, H: 1387, lining: 30, floor: 20, arch: { x: 1650, len: 850, w: 197, h: 260 }, door: { x: 230, len: 1032, h: 1284 }, payload: 1050, cab: { len: 1400, dash: 450, h: 1250, partition: true }, ext: { hood: 700, sill: 550, wheel: 320 } },
+  custom_l2h1: { label: 'Ford Transit Custom L2H1', short: 'Transit Custom', L: 2921, W: 1775, H: 1406, lining: 30, floor: 20, arch: { x: 1600, len: 850, w: 191, h: 260 }, door: { x: 230, len: 1030, h: 1323 }, payload: 1000, cab: { len: 1400, dash: 450, h: 1250, partition: true }, ext: { hood: 700, sill: 560, wheel: 330 } },
+  c15: { label: 'Citroën C15', short: 'C15', L: 1650, W: 1500, H: 1170, lining: 25, floor: 15, arch: { x: 720, len: 780, w: 250, h: 260 }, door: { x: 0, len: 0, h: 0 }, payload: 550, cab: { len: 1250, dash: 400, h: 1050, partition: true }, ext: { hood: 800, sill: 570, wheel: 290 } }
 };
 
 const CATS = {
@@ -828,6 +864,7 @@ function valid(s) { return s && s.van && Array.isArray(s.modules) && isFinite(s.
 function migrate(s) {
   s.van.door = s.van.door || { x: 0, len: 0, h: 0 };
   if (!Array.isArray(s.ignored)) s.ignored = [];
+  if (!s.van.ext) s.van.ext = structuredClone((PRESETS[s.van.preset] || PRESETS.ducato_l2h2).ext);
   const hadCab = !!s.van.cab;
   if (!hadCab) s.van.cab = structuredClone((PRESETS[s.van.preset] || PRESETS.ducato_l2h2).cab);
   for (const m of s.modules) {
@@ -846,12 +883,12 @@ function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localSto
 let state = load() || sample();
 let sel = null;
 let undoStack = [], redoStack = [];
-const prefs = { view: 'plan', grid: 10, magnet: true, allDims: false };
+const prefs = { view: 'plan', grid: 10, magnet: true, allDims: false, doorsOpen: true, body3d: false };
 try { Object.assign(prefs, JSON.parse(localStorage.getItem(PREF)) || {}); } catch (e) {}
 function savePrefs() { try { localStorage.setItem(PREF, JSON.stringify(prefs)); } catch (e) {} }
 const VB = { plan: null, elev: null, sect: null };
 const scaleOf = { plan: 0.2, elev: 0.2, sect: 0.2 };
-const T3 = { ready: false, loading: false, fit: true, theta: -0.62, phi: 1.02, r: 6000, meshes: [] };
+const T3 = { ready: false, loading: false, fit: true, theta: -0.62, phi: 1.12, r: 6000, meshes: [], pick: [], drawers: {}, hinges: [], open: {}, doorAngle: null, ty: 600 };
 
 function snapshot() { return JSON.stringify(state); }
 function pushUndo(snap) { undoStack.push(snap || snapshot()); if (undoStack.length > 200) undoStack.shift(); redoStack = []; updateUndo(); }
@@ -863,6 +900,9 @@ function updateUndo() { $('#btnUndo').disabled = !undoStack.length; $('#btnRedo'
 function resetViews() { VB.plan = VB.elev = VB.sect = null; T3.fit = true; }
 
 const V = () => state.van;
+const rackOf = (v = V()) => (v.rack && v.rack.on ? v.rack : null);
+function defaultRack(v) { return { on: true, x: 150, len: Math.max(800, v.L - 300), w: Math.max(600, v.W - 140), h: 120, kg: 30 }; }
+const totalKg = () => state.modules.reduce((t, m) => t + (+m.kg || 0), 0) + (rackOf() ? +rackOf().kg || 0 : 0);
 const getM = id => state.modules.find(m => m.id === id);
 function inner(v = V()) {
   const cf = -(v.cab.len - v.cab.dash);
@@ -970,7 +1010,7 @@ function boxFor(view) {
   const v = V();
   const c = v.cab.len + 160;
   if (view === 'plan') return [-c, -300, v.L + c + 440, v.W + 300 + 360];
-  if (view === 'elev') return [-c, -(v.H - v.floor) - 170, v.L + c + 380, v.H + 170 + 260];
+  if (view === 'elev') { const rh = rackOf(v) ? rackOf(v).h + 80 : 0; return [-c, -(v.H - v.floor) - 170 - rh, v.L + c + 380, v.H + 170 + 260 + rh]; }
   return [-360, -(v.H - v.floor) - 170, v.W + 360 + 200, v.H + 170 + 220];
 }
 
@@ -1060,6 +1100,8 @@ function renderPlan(issues) {
   g += `<line class="door" vector-effect="non-scaling-stroke" stroke-width="1.4" x1="${v.L + 55}" y1="0" x2="${v.L + 55}" y2="${W}"/>`;
   for (const a of arches(v)) g += `<rect class="arch" vector-effect="non-scaling-stroke" stroke-width="1.2" x="${a.x}" y="${a.y}" width="${a.w}" height="${a.d}"/>`;
   g += `<text class="lbl strong" x="${v.L}" y="-220" font-size="${fs}" text-anchor="end">CÔTÉ PASSAGER</text>`;
+  const rkp = rackOf(v);
+  if (rkp) g += `<rect x="${rkp.x}" y="${(W - rkp.w) / 2}" width="${rkp.len}" height="${rkp.w}" fill="none" stroke="var(--muted)" stroke-dasharray="2 6" vector-effect="non-scaling-stroke" stroke-width="1.2" pointer-events="none"/><text class="lbl" x="${rkp.x + px(6)}" y="${(W - rkp.w) / 2 + px(14)}" font-size="${px(9.5)}">GALERIE DE TOIT</text>`;
   g += `<text class="lbl strong" x="${v.L}" y="${W + 95}" font-size="${fs}" text-anchor="end">CÔTÉ CONDUCTEUR</text>`;
   g += `<text class="lbl" x="${v.L + 55 + px(6)}" y="${W / 2}" font-size="${px(10)}" text-anchor="middle" transform="rotate(90 ${v.L + 55 + px(6)} ${W / 2})">PORTES ARRIÈRE</text>`;
 
@@ -1141,6 +1183,13 @@ function renderElev(issues) {
     g += `</g>`;
   }
   g += C.v(0, -I.z1, v.L + 150, `utile ${f(I.z1)}`, 'grey') + C.v(v.floor, -top, v.L + 260, `caisse ${f(v.H)}`, 'grey');
+  const rk = rackOf(v);
+  if (rk) {
+    const rz = -top - 30;
+    g += `<rect x="${rk.x}" y="${rz - rk.h}" width="${rk.len}" height="${rk.h}" fill="none" stroke="var(--ink)" vector-effect="non-scaling-stroke" stroke-width="1.4"/>`;
+    for (let x = rk.x + 260; x < rk.x + rk.len - 120; x += 300) g += `<line x1="${x}" y1="${rz - rk.h}" x2="${x}" y2="${rz - rk.h + 30}" stroke="var(--ink)" vector-effect="non-scaling-stroke" stroke-width="1"/>`;
+    g += `<text class="lbl" x="${rk.x + rk.len / 2}" y="${rz - rk.h - px(6)}" font-size="${px(10)}" text-anchor="middle">GALERIE ${f(rk.len)} × ${f(rk.w)}</text>`;
+  }
   const m = getM(sel);
   if (m) {
     const c = clearances(m), xr = m.x + m.w + px(14);
@@ -1198,10 +1247,10 @@ function init3D() {
   r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(36, 1, 20, 80000);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x8f9894, 0.58));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8f9894, 0.7));
   const dl = new THREE.DirectionalLight(0xffffff, 0.5);
   dl.position.set(-1800, 5200, -2600); dl.castShadow = true; dl.shadow.mapSize.set(2048, 2048);
-  Object.assign(dl.shadow.camera, { left: -3500, right: 3500, top: 3500, bottom: -3500, near: 100, far: 15000 });
+  Object.assign(dl.shadow.camera, { left: -4800, right: 4800, top: 4800, bottom: -4800, near: 100, far: 16000 });
   dl.shadow.bias = -0.0004; scene.add(dl);
   const fill = new THREE.DirectionalLight(0xffffff, 0.16); fill.position.set(3000, 2000, 3000); scene.add(fill);
   const group = new THREE.Group(); scene.add(group);
@@ -1209,7 +1258,11 @@ function init3D() {
   const pts = new Map(); let g0 = null;
   cv.addEventListener('pointerdown', e => {
     cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pts.size === 1) g0 = { x: e.clientX, y: e.clientY, th: T3.theta, ph: T3.phi, moved: false };
+    if (pts.size === 1) {
+      const hit = hit3D(e), dr = hit && hit.object.userData.drawer;
+      if (dr && T3.drawers[dr]) g0 = { drawer: dr, x: e.clientX, y: e.clientY, start: T3.open[dr] || 0, dir: screenDir(dr), hit, moved: false };
+      else g0 = { x: e.clientX, y: e.clientY, th: T3.theta, ph: T3.phi, hit, moved: false };
+    }
     if (pts.size === 2) { const [a, b] = [...pts.values()]; g0 = { pinch: Math.hypot(a.x - b.x, a.y - b.y) || 1, r: T3.r, moved: true }; }
   });
   cv.addEventListener('pointermove', e => {
@@ -1219,68 +1272,208 @@ function init3D() {
     if (g0.pinch) return;
     const dx = e.clientX - g0.x, dy = e.clientY - g0.y;
     if (Math.hypot(dx, dy) > 4) g0.moved = true;
+    if (g0.drawer) {
+      const d = g0.dir, l2 = d.x * d.x + d.y * d.y || 1, mm = (dx * d.x + dy * d.y) / l2 * 100;
+      setDrawer(g0.drawer, g0.start + mm); draw3D(); return;
+    }
     T3.theta = g0.th + dx * 0.008; T3.phi = clamp(g0.ph - dy * 0.006, 0.12, 1.52); draw3D();
   });
   const up = e => {
     pts.delete(e.pointerId);
-    if (g0 && !g0.moved && !g0.pinch) pick3D(e);
+    if (g0 && !g0.moved && !g0.pinch) {
+      if (g0.hit && g0.hit.object.userData.door) toggleDoors();
+      else { sel = g0.hit && g0.hit.object.userData.id || null; renderAll(true); }
+    }
     if (!pts.size) g0 = null;
   };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', e => { pts.delete(e.pointerId); if (!pts.size) g0 = null; });
   cv.addEventListener('wheel', e => { e.preventDefault(); T3.r = clamp(T3.r * (e.deltaY > 0 ? 1.12 : 1 / 1.12), 800, 30000); draw3D(); }, { passive: false });
 }
-function pick3D(e) {
+function hit3D(e) {
   const rect = $('#v3d').getBoundingClientRect(), THREE = T3.THREE;
   const ndc = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
   T3.ray.setFromCamera(ndc, T3.cam);
-  const hit = T3.ray.intersectObjects(T3.meshes, false)[0];
-  sel = hit ? hit.object.userData.id : null;
-  renderAll(true);
+  return T3.ray.intersectObjects(T3.pick, false)[0] || null;
+}
+function screenDir(id) {
+  const d = T3.drawers[id], el = $('#v3d'), w = el.clientWidth, h = el.clientHeight;
+  const p0 = d.c.clone(), p1 = d.c.clone(); p0.x += d.g.position.x; p1.x += d.g.position.x + 100;
+  p0.project(T3.cam); p1.project(T3.cam);
+  return { x: (p1.x - p0.x) * w / 2, y: -(p1.y - p0.y) * h / 2 };
+}
+function setDrawer(id, mm) { const d = T3.drawers[id]; if (!d) return; T3.open[id] = clamp(mm, 0, d.travel); d.g.position.x = T3.open[id]; }
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function applyDoors() { for (const h of T3.hinges) h.hinge.rotation.y = h.side ? -T3.doorAngle : T3.doorAngle; }
+function animateDoors() {
+  const target = prefs.doorsOpen ? 1.85 : 0;
+  cancelAnimationFrame(T3.doorRaf);
+  const step = () => {
+    const d = target - T3.doorAngle;
+    T3.doorAngle = reduceMotion() ? target : T3.doorAngle + Math.sign(d) * Math.min(Math.abs(d), 0.08);
+    applyDoors(); draw3D();
+    if (Math.abs(target - T3.doorAngle) > 1e-3) T3.doorRaf = requestAnimationFrame(step);
+  };
+  step();
+}
+function toggleDoors() { prefs.doorsOpen = !prefs.doorsOpen; savePrefs(); update3DBar(); animateDoors(); }
+function animateDrawers(open) {
+  cancelAnimationFrame(T3.drRaf);
+  const step = () => {
+    let busy = false;
+    for (const [id, d] of Object.entries(T3.drawers)) {
+      const tgt = open ? d.travel : 0, cur = T3.open[id] || 0, delta = tgt - cur;
+      setDrawer(id, reduceMotion() ? tgt : cur + Math.sign(delta) * Math.min(Math.abs(delta), 45));
+      if (Math.abs(tgt - (T3.open[id] || 0)) > 0.5) busy = true;
+    }
+    draw3D(); update3DBar();
+    if (busy) T3.drRaf = requestAnimationFrame(step);
+  };
+  step();
+}
+function update3DBar() {
+  $('#t3Doors').setAttribute('aria-pressed', String(!!prefs.doorsOpen));
+  $('#t3Doors span').textContent = prefs.doorsOpen ? 'Portes arrière ouvertes' : 'Portes arrière fermées';
+  $('#t3Body').setAttribute('aria-pressed', String(!prefs.body3d));
+  $('#t3Body span').textContent = prefs.body3d ? 'Carrosserie complète' : 'Vue en coupe';
+  const ids = Object.keys(T3.drawers), anyOpen = ids.some(id => (T3.open[id] || 0) > 1);
+  $('#t3Drawers').hidden = !ids.length;
+  $('#t3Drawers').setAttribute('aria-pressed', String(anyOpen));
+  $('#t3Drawers span').textContent = anyOpen ? 'Fermer les tiroirs' : 'Ouvrir les tiroirs';
 }
 function build3D() {
   if (!T3.ready || prefs.view !== '3d') return;
-  const THREE = T3.THREE, v = V(), I = inner(v), cb = v.cab, group = T3.group, issues = allIssues();
+  const THREE = T3.THREE, v = V(), I = inner(v), cb = v.cab, ex = v.ext, group = T3.group, issues = allIssues();
   const css = getComputedStyle(document.documentElement), col = n => new THREE.Color(css.getPropertyValue(n).trim() || '#cccccc');
-  for (const o of [...group.children]) { group.remove(o); o.geometry && o.geometry.dispose(); o.material && o.material.dispose(); }
-  T3.meshes = [];
+  const dispose = o => o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) (Array.isArray(c.material) ? c.material : [c.material]).forEach(m => m.dispose()); });
+  for (const o of [...group.children]) { group.remove(o); dispose(o); }
+  T3.meshes = []; T3.pick = []; T3.drawers = {}; T3.hinges = [];
   T3.ren.setClearColor(col('--canvas'));
-  const cx = (v.L - cb.len) / 2;
-  const at = (x, y, z, w, d, h) => [x + w / 2 - cx, z + h / 2, y + d / 2 - v.W / 2];
+  const W = v.W, top = v.H - v.floor, gz = -ex.sill, r = ex.wheel, nose = -cb.len - ex.hood, cx = (v.L + nose) / 2;
+  const at = (x, y, z, w, d, h) => [x + w / 2 - cx, z + h / 2, y + d / 2 - W / 2];
   const mat = (c, o = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: .85, ...o });
-  const glass = () => mat(col('--surface-2'), { transparent: true, opacity: .1, depthWrite: false });
-  const box = (x, y, z, w, d, h, m, shadow = true) => {
+  const glass = (op = .28) => mat(col('--glass3d'), { transparent: true, opacity: op, depthWrite: false, roughness: .15, metalness: .2, side: THREE.DoubleSide });
+  const box = (x, y, z, w, d, h, m, shadow = true, parent = group) => {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(Math.max(1, w), Math.max(1, h), Math.max(1, d)), m);
-    mesh.position.set(...at(x, y, z, w, d, h)); mesh.castShadow = shadow; mesh.receiveShadow = true; group.add(mesh); return mesh;
+    mesh.position.set(...at(x, y, z, w, d, h)); mesh.castShadow = shadow; mesh.receiveShadow = true; parent.add(mesh); return mesh;
   };
-  const outline = (x, y, z, w, d, h, c, op) => {
-    const geo = new THREE.BoxGeometry(w, h, d), l = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: op }));
-    l.position.set(...at(x, y, z, w, d, h)); group.add(l); geo.dispose();
+  const edges = (mesh, color, opacity, parent = group, thr = 1) => {
+    const l = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry, thr), new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }));
+    l.position.copy(mesh.position); l.rotation.copy(mesh.rotation); parent.add(l); return l;
   };
-  const edges = (mesh, color, opacity) => {
-    const l = new THREE.LineSegments(new THREE.EdgesGeometry(mesh.geometry), new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity }));
-    l.position.copy(mesh.position); group.add(l);
+  const slab = (x0, z0, x1, z1, y0, y1, th, m) => { // panneau incliné du point (x0,z0) au point (x1,z1)
+    const len = Math.hypot(x1 - x0, z1 - z0), mesh = new THREE.Mesh(new THREE.BoxGeometry(len, th, y1 - y0), m);
+    mesh.position.set((x0 + x1) / 2 - cx, (z0 + z1) / 2, (y0 + y1) / 2 - W / 2); mesh.rotation.z = Math.atan2(z1 - z0, x1 - x0); mesh.castShadow = true; group.add(mesh); return mesh;
   };
-  // Plancher (cabine + caisse) et caisse
-  box(I.cf, I.y0, -v.floor, I.x1 - I.cf, I.y1 - I.y0, v.floor, mat(col('--floor3d'), { roughness: .9 }), false);
-  box(0, v.W - v.lining, -v.floor, v.L, v.lining, v.H, mat(col('--surface-2'), { roughness: 1 }), false);
-  box(0, 0, -v.floor, v.L, v.lining, v.H, glass(), false);
-  outline(0, 0, -v.floor, v.L, v.W, v.H, col('--muted'), .55);
-  if (cb.partition) box(0, v.lining, -v.floor, v.lining, v.W - 2 * v.lining, v.H, mat(col('--surface-2'), { transparent: true, opacity: .4, depthWrite: false }), false);
-  // Cabine : portières vitrées, tableau de bord, pare-brise
+  const body = mat(col('--body3d'), { roughness: .4, metalness: .15 }), trim = mat(col('--trim3d'), { roughness: .7 });
+  const cut = !prefs.body3d;
+
+  // Sol
+  const gr = new THREE.Mesh(new THREE.PlaneGeometry(60000, 60000), mat(col('--ground3d'), { roughness: 1 }));
+  gr.rotation.x = -Math.PI / 2; gr.position.y = gz; gr.receiveShadow = true; group.add(gr);
+
+  // Profil de carrosserie (flancs), avec passages de roue et vitre de portière
+  const zb = gz + Math.max(250, r * 0.85), roofTop = top + 30, cabTop = Math.min(roofTop, cb.h + 90);
   const dashTop = Math.min(820, cb.h * 0.62);
-  box(-cb.len, 0, -v.floor, cb.len, v.lining, cb.h + v.floor, glass(), false);
-  box(-cb.len, v.W - v.lining, -v.floor, cb.len, v.lining, cb.h + v.floor, glass(), false);
-  outline(-cb.len, 0, -v.floor, cb.len, v.W, cb.h + v.floor, col('--muted'), .4);
-  box(-cb.len, I.y0, 0, cb.dash, I.y1 - I.y0, dashTop, mat(col('--hatch')));
-  const ws = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(cb.dash, cb.h - dashTop), 6, v.W - 2 * v.lining), mat(col('--accent'), { transparent: true, opacity: .12, depthWrite: false }));
-  ws.position.set(-cb.len + cb.dash / 2 - cx, (dashTop + cb.h) / 2, 0); ws.rotation.z = Math.atan2(cb.h - dashTop, cb.dash); group.add(ws);
+  const wsTopX = -(cb.len - cb.dash) + 40, cowlX = -cb.len + 30, cowlZ = Math.min(dashTop + 70, cabTop - 260);
+  const hoodX = nose + 60, hoodZ = cowlZ - Math.min(300, ex.hood * 0.32), noseZ = Math.max(zb + 180, hoodZ - 200);
+  const xf = Math.min(nose + Math.max(700, ex.hood + 320), -200), xr = v.arch.x + v.arch.len / 2, wz = gz + r;
+  const pts = [[nose, zb]];
+  const archCut = xc => {
+    const R = r + 45, s0 = clamp((zb - wz) / R, -1, 1), a1 = Math.asin(s0), a0 = Math.PI - a1;
+    for (let i = 0; i <= 18; i++) { const a = a0 + (a1 - a0) * i / 18; pts.push([xc + R * Math.cos(a), wz + R * Math.sin(a)]); }
+  };
+  archCut(xf); archCut(xr);
+  pts.push([v.L, zb], [v.L, roofTop]);
+  if (cabTop < roofTop - 30) pts.push([0, roofTop], [-60, cabTop]);
+  pts.push([wsTopX, cabTop], [cowlX, cowlZ], [hoodX, hoodZ], [nose, noseZ]);
+  const shape = new THREE.Shape(); shape.moveTo(...pts[0]); for (const p of pts.slice(1)) shape.lineTo(...p); shape.closePath();
+  const wsx = z => cowlX + (wsTopX - cowlX) * (z - cowlZ) / (cabTop - cowlZ);
+  const beltZ = cowlZ + 50, winTop = cabTop - 70, win = [[wsx(beltZ) + 90, beltZ], [-170, beltZ], [-170, winTop], [wsx(winTop) + 90, winTop]];
+  const hole = new THREE.Path(); hole.moveTo(...win[0]); for (const p of win.slice(1)) hole.lineTo(...p); hole.closePath(); shape.holes.push(hole);
+  const side = (zPos, m) => {
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: 18, bevelEnabled: false });
+    const mesh = new THREE.Mesh(geo, m); mesh.position.set(-cx, 0, zPos); mesh.castShadow = !m.transparent; mesh.receiveShadow = true; group.add(mesh); return mesh;
+  };
+  const winShape = new THREE.Shape(); winShape.moveTo(...win[0]); for (const p of win.slice(1)) winShape.lineTo(...p); winShape.closePath();
+  const winGlass = zPos => { const m = new THREE.Mesh(new THREE.ShapeGeometry(winShape), glass(.35)); m.position.set(-cx, 0, zPos); group.add(m); };
+  side(W / 2, body); winGlass(W / 2 + 9);
+  const pSide = side(-W / 2 - 18, cut ? mat(col('--body3d'), { transparent: true, opacity: .12, depthWrite: false, side: THREE.DoubleSide }) : body);
+  if (cut) edges(pSide, col('--muted'), .6, group, 20); else winGlass(-W / 2 - 9);
+  // Toit
+  if (!cut) {
+    box(0, -18, top, v.L, W + 36, roofTop - top, body);
+    if (cabTop < roofTop - 30) box(wsTopX, -18, cabTop - 30, -wsTopX - 60, W + 36, 30, body);
+  }
+  // Galerie de toit
+  const rk = rackOf(v);
+  if (rk) {
+    const rm = mat(col('--trim3d'), { roughness: .5, metalness: .5 }), y0 = (W - rk.w) / 2, z0 = roofTop, x1 = rk.x + rk.len, zr = z0 + rk.h - 40;
+    for (const x of [rk.x + 60, x1 - 120, ...(rk.len > 1800 ? [rk.x + rk.len / 2 - 30] : [])]) for (const y of [y0 + 10, y0 + rk.w - 70]) box(x, y, z0, 60, 60, rk.h - 40, rm);
+    box(rk.x, y0, zr, rk.len, 40, 40, rm); box(rk.x, y0 + rk.w - 40, zr, rk.len, 40, 40, rm);
+    box(rk.x, y0, zr, 40, rk.w, 40, rm); box(x1 - 40, y0, zr, 40, rk.w, 40, rm);
+    for (let x = rk.x + 260; x < x1 - 120; x += 300) box(x, y0 + 40, zr + 10, 60, rk.w - 80, 22, rm);
+    slab(rk.x - 160, z0 + 20, rk.x + 20, zr + 40, y0, y0 + rk.w, 12, rm);
+  }
+  // Pare-brise, capot, face avant
+  slab(cowlX, cowlZ, wsTopX, cabTop, -18, W + 18, 8, glass(.3));
+  slab(hoodX, hoodZ, cowlX, cowlZ, -18, W + 18, 20, body);
+  box(nose - 12, -18, zb, 72, W + 36, noseZ - zb, body);
+  box(nose - 22, W * 0.28, noseZ - 230, 12, W * 0.44, 170, trim);
+  for (const y of [40, W - 40 - W * 0.2]) box(nose - 18, y, noseZ - 200, 10, W * 0.2, 110, mat(col('--lamp3d'), { emissive: col('--lamp3d'), emissiveIntensity: .25 }));
+  box(nose - 70, -30, zb - 40, 170, W + 60, 230, trim);
+  // Rétroviseurs
+  for (const [y0, y1] of [[-170, -18], [W + 18, W + 170]]) box(cowlX + 120, y0, cowlZ + 120, 70, y1 - y0, 200, trim);
+  // Arrière : pare-chocs et feux
+  box(v.L - 20, -30, zb - 30, 100, W + 60, 190, trim);
+  for (const [y0, y1] of [[-18, 85], [W - 85, W + 18]]) box(v.L - 4, y0, zb + 260, 26, y1 - y0, 460, mat(col('--tail3d'), { emissive: col('--tail3d'), emissiveIntensity: .2 }));
+  // Soubassement et roues
+  box(nose + 200, 140, gz + r * 0.55, v.L - nose - 300, W - 280, zb - gz - r * 0.55, trim, false);
+  const tireM = mat(col('--tire3d'), { roughness: .9 }), rimM = mat(col('--rim3d'), { roughness: .35, metalness: .6 });
+  for (const xw of [xf, xr]) for (const zs of [-1, 1]) {
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 205, 32), tireM); t.rotation.x = Math.PI / 2; t.position.set(xw - cx, wz, zs * (W / 2 - 80)); t.castShadow = true; group.add(t);
+    const rim = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.56, r * 0.56, 212, 24), rimM); rim.rotation.x = Math.PI / 2; rim.position.copy(t.position); group.add(rim);
+  }
+  // Porte latérale (contour sur le flanc passager)
+  if (v.door.len > 0 && v.door.h > 0) {
+    const zt = Math.min(v.door.h, roofTop - 60), q = [[v.door.x, zb + 20], [v.door.x + v.door.len, zb + 20], [v.door.x + v.door.len, zt], [v.door.x, zt], [v.door.x, zb + 20]];
+    const geo = new THREE.BufferGeometry().setFromPoints(q.map(([x, z]) => new THREE.Vector3(x - cx, z, -W / 2 - 20)));
+    group.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color: col('--trim3d') })));
+    box(v.door.x + v.door.len - 160, -24, zb + (zt - zb) * 0.45, 110, 8, 30, trim, false);
+  }
+  // Portes arrière sur charnières
+  const leafH = roofTop - zb - 25, leafW = W / 2 - 3, dth = 40;
+  for (const sd of [0, 1]) {
+    const hinge = new THREE.Group(); hinge.position.set(v.L - cx, 0, sd ? W / 2 + 18 : -W / 2 - 18); group.add(hinge);
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(dth, leafH, leafW), body); leaf.position.set(dth / 2, zb + 10 + leafH / 2, sd ? -leafW / 2 : leafW / 2); leaf.castShadow = true; leaf.receiveShadow = true;
+    leaf.userData.door = true; hinge.add(leaf); T3.pick.push(leaf);
+    const wg = new THREE.Mesh(new THREE.BoxGeometry(dth + 4, leafH * 0.3, leafW * 0.78), glass(.5)); wg.position.set(dth / 2, zb + 10 + leafH * 0.78, sd ? -leafW / 2 : leafW / 2); hinge.add(wg);
+    const hd = new THREE.Mesh(new THREE.BoxGeometry(dth + 30, 28, 120), trim); hd.position.set(dth / 2, zb + 10 + leafH * 0.48, sd ? -leafW + 90 : leafW - 90); hinge.add(hd);
+    T3.hinges.push({ hinge, side: sd });
+  }
+  if (T3.doorAngle == null) T3.doorAngle = prefs.doorsOpen ? 1.85 : 0;
+  applyDoors();
+
+  // Intérieur : plancher, habillage, cloison, cabine
+  box(I.cf, I.y0, -v.floor, I.x1 - I.cf, I.y1 - I.y0, v.floor, mat(col('--floor3d'), { roughness: .9 }), false);
+  box(0, W - v.lining, 0, v.L, v.lining, top - (cut ? 0 : 0), mat(col('--surface-2'), { roughness: 1 }), false);
+  if (!cut) box(0, 0, 0, v.L, v.lining, top, mat(col('--surface-2'), { roughness: 1 }), false);
+  if (cb.partition) box(0, v.lining, -v.floor, v.lining, W - 2 * v.lining, Math.min(top, cabTop), mat(col('--surface-2'), { transparent: true, opacity: .4, depthWrite: false }), false);
+  box(-cb.len, I.y0, 0, cb.dash, I.y1 - I.y0, dashTop, mat(col('--trim3d'), { roughness: .8 }));
   const archMat = mat(col('--hatch'), { roughness: 1 });
   for (const a of arches(v)) box(a.x, a.y, 0, a.w, a.d, a.h, archMat.clone());
+
+  // Meubles
   const ink = col('--mod-stroke'), acc = col('--accent'), bad = col('--danger'), wood = col('--wood');
   for (const m of state.modules) {
     if (m.hidden) continue;
-    const isSel = m.id === sel, c = col((CATS[m.cat] || CATS.other).c);
-    const mm = () => mat(c, { roughness: .78, emissive: isSel ? acc : new THREE.Color(0), emissiveIntensity: isSel ? .22 : 0 });
+    const isSel = m.id === sel, c = col((CATS[m.cat] || CATS.other).c), em = isSel ? { emissive: acc, emissiveIntensity: .22 } : {};
+    const mm = () => mat(c, { roughness: .78, ...em });
+    let parent = group;
+    if (m.t === 'drawer') {
+      parent = new THREE.Group(); group.add(parent);
+      T3.drawers[m.id] = { g: parent, travel: Math.max(0, m.w - 100), c: new THREE.Vector3(...at(m.x, m.y, m.z, m.w, m.d, m.h)) };
+      parent.position.x = T3.open[m.id] = clamp(T3.open[m.id] || 0, 0, T3.drawers[m.id].travel);
+    }
     const parts = [];
     if (m.t && m.t.startsWith('seat')) {
       const bw = Math.min(m.w * 0.22, 140), ch = Math.min(m.h, 450);
@@ -1288,15 +1481,20 @@ function build3D() {
     } else {
       const pn = panels(m);
       if (pn.length) {
-        const wm = () => mat(wood, { roughness: .7, emissive: isSel ? acc : new THREE.Color(0), emissiveIntensity: isSel ? .22 : 0 });
-        for (const p of pn) parts.push(box(p.box.x, p.box.y, p.box.z, p.box.w, p.box.d, p.box.h, wm()));
+        for (const p of pn) parts.push(box(p.box.x, p.box.y, p.box.z, p.box.w, p.box.d, p.box.h, mat(wood, { roughness: .7, ...em }), true, parent));
         const b = buildOf(m), th = clamp(+b.th || 15, 3, 40);
         if (b.kind === 'bed' && m.h - th > 5) parts.push(box(m.x + 10, m.y + 10, m.z + th, m.w - 20, m.d - 20, m.h - th, mm()));
-      } else parts.push(box(m.x, m.y, m.z, m.w, m.d, m.h, mm()));
+      } else parts.push(box(m.x, m.y, m.z, m.w, m.d, m.h, mm(), true, parent));
     }
-    for (const p of parts) { p.userData.id = m.id; T3.meshes.push(p); edges(p, isSel ? acc : issues.has(m.id) ? bad : ink, isSel ? 1 : .55); }
+    for (const p of parts) {
+      p.userData.id = m.id; if (m.t === 'drawer') p.userData.drawer = m.id;
+      T3.meshes.push(p); T3.pick.push(p);
+      edges(p, isSel ? acc : issues.has(m.id) ? bad : ink, isSel ? 1 : .55, p.parent);
+    }
   }
-  if (T3.fit) { T3.r = Math.max(v.L + cb.len, v.W * 1.6) * 1.5 + 1200; T3.theta = -0.62; T3.phi = 1.02; T3.fit = false; }
+  T3.ty = gz + (roofTop - gz) * 0.48;
+  if (T3.fit) { T3.r = Math.max(v.L - nose, W * 1.7) * 1.75 + 1800; T3.theta = -0.62; T3.phi = 1.12; T3.fit = false; }
+  update3DBar();
   draw3D();
 }
 function draw3D() {
@@ -1304,7 +1502,7 @@ function draw3D() {
   const wrap = $('#v3dwrap'), w = wrap.clientWidth || 800, h = wrap.clientHeight || 500, pr = T3.ren.getPixelRatio(), c = T3.ren.domElement;
   if (c.width !== Math.round(w * pr) || c.height !== Math.round(h * pr)) T3.ren.setSize(w, h, false);
   T3.cam.aspect = w / h; T3.cam.updateProjectionMatrix();
-  const v = V(), ty = (v.H - v.floor) * 0.38;
+  const ty = T3.ty;
   T3.cam.position.set(T3.r * Math.sin(T3.phi) * Math.cos(T3.theta), ty + T3.r * Math.cos(T3.phi), T3.r * Math.sin(T3.phi) * Math.sin(T3.theta));
   T3.cam.lookAt(0, ty, 0);
   T3.ren.render(T3.scene, T3.cam);
@@ -1328,7 +1526,7 @@ function floorStats() {
 function anomalies(issues = allIssues()) {
   const v = V(), out = [], I = inner(), A = arches();
   for (const m of state.modules) for (const x of issuesFor(m, I, A)) out.push({ key: x.k, id: m.id, name: m.name, level: 'err', text: x.t });
-  const kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0);
+  const kg = totalKg();
   if (v.payload && kg > v.payload) out.push({ key: 'all|weight', id: null, name: 'Poids total', level: 'err', text: `${f(kg)} kg d’aménagement pour ${f(v.payload)} kg de charge utile, sans compter passagers, eau et bagages` });
   else if (v.payload && kg > v.payload * 0.6) out.push({ key: 'all|weight-warn', id: null, name: 'Poids total', level: 'warn', text: `${f(kg)} kg, soit ${Math.round(kg / v.payload * 100)} % de la charge utile. Gardez de la marge pour les passagers, l’eau et les bagages` });
   for (const m of state.modules) {
@@ -1372,7 +1570,7 @@ function renderAnomalies(issues) {
   return { ne, nw };
 }
 function renderStats(issues) {
-  const v = V(), I = inner(v), fs = floorStats(), kg = state.modules.reduce((t, m) => t + (+m.kg || 0), 0), pct = v.payload ? kg / v.payload : 0, an = renderAnomalies(issues);
+  const v = V(), I = inner(v), fs = floorStats(), kg = totalKg(), pct = v.payload ? kg / v.payload : 0, an = renderAnomalies(issues);
   $('#stats').innerHTML =
     `<span class="stat">Sol libre <b>${f2(fs.free)} m²</b></span>` +
     `<span class="stat">Poids <b>${f(kg)} kg</b><span class="meter${pct > 1 ? ' over' : ''}" title="${Math.round(pct * 100)} % de la charge utile"><i style="width:${clamp(pct * 100, 0, 100)}%"></i></span></span>` +
@@ -1471,7 +1669,7 @@ function setView(v) {
   prefs.view = v; savePrefs();
   $('#stage').dataset.view = v;
   $$('#viewTabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
-  $('#legend').hidden = v === '3d';
+  $('#legend').hidden = v === '3d'; $('#t3bar').hidden = v !== '3d';
   if (v === '3d') load3D();
   renderAll();
 }
@@ -1587,8 +1785,11 @@ function renderVan() {
   $('#vanLabel').textContent = P ? P.short : 'Véhicule personnalisé';
   $('#vanList').innerHTML = Object.entries(PRESETS).map(([k, p]) => `<button class="vcard" data-preset="${k}" aria-pressed="${k === v.preset}"><b>${esc(p.label)}</b><small>${f(p.L - 2 * p.lining)} × ${f(p.W - 2 * p.lining)} × ${f(p.H - p.floor - p.lining)} mm</small></button>`).join('') +
     `<button class="vcard" data-preset="custom" aria-pressed="${!P}"><b>Personnalisé</b><small>Saisissez vos propres cotes ci-dessous</small></button>`;
-  const get = p => p.split('.').reduce((o, k) => o[k], v);
-  for (const el of $$('[data-v]')) if (document.activeElement !== el) el.value = get(el.dataset.v);
+  const get = p => p.split('.').reduce((o, k) => (o == null ? '' : o[k]), v);
+  for (const el of $$('[data-v]')) if (document.activeElement !== el) el.value = get(el.dataset.v) ?? '';
+  const rk = rackOf(v);
+  $('#optRack').checked = !!rk; $('#rackFields').hidden = !rk;
+  $('#rackHint').textContent = rk ? `Hauteur totale avec galerie ≈ ${f(v.ext.sill + v.H + 30 + rk.h)} mm du sol · ${f(rk.kg)} kg comptés dans le poids` : 'Ajoute une galerie sur le pavillon, visible en 3D et sur les dessins';
   $('#vanHint').textContent = `Espace utile ${f(v.L - 2 * v.lining)} × ${f(v.W - 2 * v.lining)} × ${f(v.H - v.floor - v.lining)} mm · ${f(v.W - 2 * v.arch.w)} mm entre les passages de roue`;
   for (const id of ['#projName', '#projName2']) if (document.activeElement !== $(id)) $(id).value = state.name || '';
   $('#optPartition').checked = !!v.cab.partition;
@@ -1726,7 +1927,7 @@ function bindFields(selector, setter) {
 function setVanField(el) {
   const n = parseFloat(el.value.replace(',', '.')); if (!isFinite(n) || n < 0) return;
   const path = el.dataset.v.split('.'), v = V(), o = path.length > 1 ? v[path[0]] : v;
-  o[path[path.length - 1]] = n; v.preset = 'custom'; resetViews(); save(); renderAll();
+  o[path[path.length - 1]] = n; if (path[0] !== 'rack') v.preset = 'custom'; resetViews(); save(); renderAll();
 }
 function snapTo(where) {
   const m = getM(sel); if (!m) return; const I = inner();
@@ -1777,7 +1978,7 @@ function init() {
     const b = e.target.closest('[data-preset]'); if (!b) return;
     const k = b.dataset.preset;
     if (k === 'custom') { commit(() => { V().preset = 'custom'; }); return; }
-    commit(() => { state.van = van(k); placeSeats(state.van, state.modules.filter(m => m.t && m.t.startsWith('seat'))); resetViews(); });
+    commit(() => { const rk = V().rack; state.van = van(k); if (rk) { state.van.rack = rk; rk.len = Math.min(rk.len, state.van.L - rk.x); rk.w = Math.min(rk.w, state.van.W); } placeSeats(state.van, state.modules.filter(m => m.t && m.t.startsWith('seat'))); resetViews(); });
     toast(`${PRESETS[k].short} sélectionné`);
   });
   bindFields('[data-v]', setVanField);
@@ -1793,6 +1994,9 @@ function init() {
   $('#btnVan').addEventListener('click', () => openSheet('sheetVan'));
   $('#btnList').addEventListener('click', () => openSheet('sheetList'));
   $('#btnAnom').addEventListener('click', () => openSheet('sheetAnom'));
+  $('#t3Doors').addEventListener('click', toggleDoors);
+  $('#t3Body').addEventListener('click', () => { prefs.body3d = !prefs.body3d; savePrefs(); build3D(); });
+  $('#t3Drawers').addEventListener('click', () => animateDrawers(!Object.keys(T3.drawers).some(id => (T3.open[id] || 0) > 1)));
   $('#layerList').addEventListener('click', e => {
     const one = e.target.closest('[data-layer]'), cat = e.target.closest('[data-layer-cat]'), pick = e.target.closest('[data-layer-sel]');
     if (one) { const m = getM(one.dataset.layer); if (m) setHidden([m.id], !m.hidden); }
@@ -1822,6 +2026,7 @@ function init() {
   });
   $('#scrim').addEventListener('click', () => closeSheets());
   $('#gridSeg').addEventListener('click', e => { const b = e.target.closest('[data-grid]'); if (!b) return; prefs.grid = +b.dataset.grid; savePrefs(); $$('#gridSeg button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+  $('#optRack').addEventListener('change', e => { const on = e.target.checked; commit(() => { const v = V(); if (on) v.rack = v.rack ? { ...v.rack, on: true } : defaultRack(v); else if (v.rack) v.rack.on = false; resetViews(); }); toast(on ? 'Galerie de toit ajoutée' : 'Galerie de toit retirée'); });
   $('#optPartition').addEventListener('change', e => { const on = e.target.checked; commit(() => { V().cab.partition = on; resetViews(); }); toast(on ? 'Cloison remise en place' : 'Cloison retirée : la cabine fait partie de l’espace'); });
   $('#optMagnet').addEventListener('change', e => { prefs.magnet = e.target.checked; savePrefs(); });
   $('#optAllDims').addEventListener('change', e => { prefs.allDims = e.target.checked; savePrefs(); renderAll(); });
