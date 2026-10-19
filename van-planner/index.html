@@ -267,6 +267,21 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .modal { padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
 }
+.quick { display: none; }
+@media (max-width: 760px) {
+  .quick:not([hidden]) {
+    display: flex; flex-direction: column; gap: 6px; position: fixed; left: 0; right: 0; bottom: 57px; z-index: 44;
+    background: var(--panel); border-top: 1px solid var(--line); box-shadow: 0 -6px 18px rgba(0, 0, 0, .08);
+    padding-block: 8px 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .quick .qhead { display: flex; align-items: center; gap: 8px; }
+  .quick .qhead b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-display); font-size: 17px; font-weight: 600; }
+  .quick .qhead .bad { color: var(--danger); font-size: 12px; white-space: nowrap; }
+  .quick .qrow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .quick .field input { padding: 6px 8px; }
+  body.has-quick { padding-bottom: calc(190px + env(safe-area-inset-bottom, 0px)); }
+  body.has-quick .toast { bottom: calc(200px + env(safe-area-inset-bottom, 0px)); }
+}
 #sec-plan, #sec-insp, #sec-lib, #sec-van { scroll-margin-top: calc(12px + env(safe-area-inset-top, 0px)); }
 .filebtn { position: relative; overflow: hidden; }
 .filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
@@ -436,6 +451,14 @@ tfoot td { font-weight: 600; border-bottom: 0; }
   </section>
 </div>
 <div class="toast" id="toast" hidden></div>
+<div class="quick" id="quick" hidden>
+  <div class="qhead"><b id="q_name"></b><span class="bad" id="q_bad"></span><button class="btn sm" id="qMore">Détails</button><button class="btn sm" id="qClose" aria-label="Fermer">✕</button></div>
+  <div class="qrow">
+    <label class="field"><span>Longueur (mm)</span><input id="q_w" type="number" inputmode="decimal" min="1" step="1" data-q="w"></label>
+    <label class="field"><span>Profondeur (mm)</span><input id="q_d" type="number" inputmode="decimal" min="1" step="1" data-q="d"></label>
+    <label class="field"><span>Hauteur (mm)</span><input id="q_h" type="number" inputmode="decimal" min="1" step="1" data-q="h"></label>
+  </div>
+</div>
 <nav class="tabbar" aria-label="Navigation">
   <a href="#sec-plan" class="on"><b>▭</b>Plan</a>
   <a href="#sec-lib"><b>+</b>Ajouter</a>
@@ -649,6 +672,7 @@ function renderPlan(issues) {
   svg.setAttribute('viewBox', `${planVB.x} ${planVB.y} ${planVB.w} ${planVB.h}`);
   const s = cw / planVB.w, px = n => n / s, C = mkCote(px), fs = px(11);
   lastScale.plan = s;
+  const hs = matchMedia('(pointer: coarse)').matches ? 22 : 12;
   const minor = s > 1.1 ? 10 : s > 0.3 ? 50 : 100;
   let g = hatchDefs(px);
   g += `<defs>
@@ -720,7 +744,7 @@ function renderPlan(issues) {
     g += C.v(m.y + m.d, c.B, midX, f(c.B - m.y - m.d));
     g += C.h(m.x, m.x + m.w, m.y - px(16), f(m.w));
     g += C.v(m.y, m.y + m.d, m.x - px(16), f(m.d));
-    g += `<rect class="handle" data-handle="se" data-id="${m.id}" x="${m.x + m.w - px(6)}" y="${m.y + m.d - px(6)}" width="${px(12)}" height="${px(12)}" rx="${px(2)}" vector-effect="non-scaling-stroke" stroke-width="1.5"/>`;
+    g += `<rect class="handle" data-handle="se" data-id="${m.id}" x="${m.x + m.w - px(hs / 2)}" y="${m.y + m.d - px(hs / 2)}" width="${px(hs)}" height="${px(hs)}" rx="${px(2)}" vector-effect="non-scaling-stroke" stroke-width="1.5"/>`;
   }
   svg.innerHTML = g;
 }
@@ -841,7 +865,19 @@ function renderTable(issues) {
 }
 
 /* ---------- Inspecteur ---------- */
+function renderQuick(force) {
+  const m = getM(sel), q = $('#quick');
+  const show = !!m && matchMedia('(max-width: 760px)').matches;
+  q.hidden = !show; document.body.classList.toggle('has-quick', show);
+  if (!show) return;
+  const tb = $('.tabbar'); if (tb) q.style.bottom = tb.getBoundingClientRect().height + 'px';
+  $('#q_name').textContent = m.name;
+  const n = issuesFor(m).length;
+  $('#q_bad').textContent = n ? `${n} conflit${n > 1 ? 's' : ''}` : '';
+  for (const el of $$('#quick [data-q]')) if (force || document.activeElement !== el) el.value = Math.round(m[el.dataset.q] * 10) / 10;
+}
 function renderInspector(force) {
+  renderQuick(force);
   const m = getM(sel);
   $('#inspEmpty').hidden = !!m; $('#inspForm').hidden = !m;
   $('#inspId').textContent = m ? (CATS[m.cat] || CATS.other).label : '';
@@ -876,7 +912,7 @@ function renderAll(force) {
 function renderLibrary() {
   const groups = {};
   LIB.forEach((it, i) => (groups[it.cat] = groups[it.cat] || []).push([it, i]));
-  $('#library').innerHTML = Object.entries(groups).map(([cat, items]) => `<div class="libgroup"><div class="sub">${CATS[cat].label}</div>${items.map(([it, i]) => `<button class="libitem" data-lib="${i}"><i style="background:${catColor(cat)}"></i><b>${esc(it.name)}</b><small>${f(it.w)} × ${f(it.d)} × ${f(it.h)}${it.z ? ` · z ${f(it.z)}` : ''}</small></button>`).join('')}</div>`).join('') + `<p class="hint">Les dimensions se règlent ensuite au millimètre dans l’inspecteur.</p>`;
+  $('#library').innerHTML = Object.entries(groups).map(([cat, items]) => `<div class="libgroup"><div class="sub">${CATS[cat].label}</div>${items.map(([it, i]) => `<button class="libitem" data-lib="${i}"><i style="background:${catColor(cat)}"></i><b>${esc(it.name)}</b><small>${f(it.w)} × ${f(it.d)} × ${f(it.h)}${it.z ? ` · z ${f(it.z)}` : ''}</small></button>`).join('')}</div>`).join('') + `<p class="hint">Touchez un meuble sur le plan pour régler ses dimensions au millimètre.</p>`;
 }
 function findSpot(m) {
   const I = inner(), A = arches();
@@ -1057,6 +1093,9 @@ function init() {
   });
   bindFields('[data-v]', setVanField);
   bindFields('#inspForm [data-k]', el => setModuleField(el.dataset.k, el.value));
+  bindFields('#quick [data-q]', el => setModuleField(el.dataset.q, el.value));
+  $('#qClose').addEventListener('click', () => { sel = null; renderAll(true); });
+  $('#qMore').addEventListener('click', () => { const a = document.querySelector('.tabbar a[href="#sec-insp"]'); if (a) a.click(); });
   $('#projName').addEventListener('input', e => { state.name = e.target.value; save(); });
   $$('[data-snap]').forEach(b => b.addEventListener('click', () => snapTo(b.dataset.snap)));
   $('#btnRot').addEventListener('click', rotateSel);
