@@ -402,6 +402,10 @@ tfoot td { font-weight: 600; border-bottom: 0; }
 .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; border: 1px solid var(--mod-stroke); margin-right: 8px; vertical-align: -1px; }
 .filebtn { position: relative; overflow: hidden; }
 .filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+/* Code de triche « GTAVI » : pluie de billets (purement décoratif) */
+.cash { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 95; }
+.cash span { position: absolute; top: -60px; font-size: 30px; animation: cashfall linear forwards; will-change: transform; }
+@keyframes cashfall { to { transform: translateY(calc(100vh + 120px)) rotate(var(--rot)); } }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 9px 15px; border-radius: 12px; font-size: 13px; z-index: 90; box-shadow: var(--shadow); max-width: 90vw; }
 
 @media (max-width: 1180px) and (min-width: 861px) {
@@ -2157,6 +2161,23 @@ function snapTo(where) {
 function rotateSel() { const m = getM(sel); if (!m) return; commit(() => { const cx = m.x + m.w / 2, cy = m.y + m.d / 2; [m.w, m.d] = [m.d, m.w]; m.x = Math.round(cx - m.w / 2); m.y = Math.round(cy - m.d / 2); }); }
 function dupSel() { const m = getM(sel); if (!m) return; const c = { ...m, id: uid() }; if (m.build) c.build = { ...m.build }; Object.assign(c, findSpot(c)); commit(() => { state.modules.push(c); sel = c.id; }); toast('Meuble dupliqué'); }
 function delSel() { const m = getM(sel); if (!m) return; commit(() => { state.modules = state.modules.filter(o => o.id !== sel); sel = null; }); toast(`${m.name} supprimé · Annuler pour revenir`); }
+/* Code de triche : taper GTAVI au clavier, ou toucher 5 fois le logo sur mobile. */
+let cheatBuf = '', brandTaps = [];
+function cheatCash() {
+  prefs.cash = (prefs.cash || 0) + 1000000; savePrefs();
+  toast(`Code GTAVI activé · +1 000 000 $ · cagnotte fictive : ${prefs.cash.toLocaleString('fr-FR')} $`);
+  if (reduceMotion()) return;
+  const box = document.createElement('div'); box.className = 'cash'; box.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 60; i++) {
+    const b = document.createElement('span'); b.textContent = Math.random() < .8 ? '💵' : '💰';
+    b.style.left = (Math.random() * 100) + 'vw';
+    b.style.animationDuration = (2.2 + Math.random() * 2) + 's';
+    b.style.animationDelay = (Math.random() * 1.6) + 's';
+    b.style.setProperty('--rot', ((Math.random() * 2 - 1) * 540) + 'deg');
+    box.appendChild(b);
+  }
+  document.body.appendChild(box); setTimeout(() => box.remove(), 6000);
+}
 function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2400); }
 function copy(txt, ok) {
   try { navigator.clipboard.writeText(txt).then(() => toast(ok), () => toast('Copie refusée : sélectionnez le texte et copiez-le à la main')); }
@@ -2331,6 +2352,10 @@ function init() {
     } catch (err) { $('#jsonMsg').textContent = 'Ce texte n’est pas un plan Atelier Van valide. Collez le texte complet obtenu avec « Exporter ».'; }
   });
 
+  $('.brand').addEventListener('click', () => {
+    const now = Date.now(); brandTaps = brandTaps.filter(t => now - t < 2000); brandTaps.push(now);
+    if (brandTaps.length >= 5) { brandTaps = []; cheatCash(); }
+  });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { if (!$('#scrim').hidden) { closeSheets(); return; } sel = null; renderAll(true); return; }
     const tag = (e.target.tagName || '').toLowerCase();
@@ -2339,6 +2364,7 @@ function init() {
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? doRedo() : doUndo(); return; }
     if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); doRedo(); return; }
     if (mod) return;
+    if (e.key.length === 1) { cheatBuf = (cheatBuf + e.key.toLowerCase()).slice(-5); if (cheatBuf === 'gtavi') { cheatBuf = ''; cheatCash(); return; } }
     const m = getM(sel); if (!m) return;
     const step = prefs.grid * (e.shiftKey ? 10 : 1);
     const mv = { ArrowLeft: ['x', -step], ArrowRight: ['x', step], ArrowUp: ['y', -step], ArrowDown: ['y', step], PageUp: ['z', step], PageDown: ['z', -step] }[e.key];
